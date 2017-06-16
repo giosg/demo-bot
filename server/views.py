@@ -3,7 +3,7 @@
 from flask import request
 from flask_restful import Resource
 from bot import Jelpperi
-from dev import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL
+from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL
 import requests
 import urlparse
 
