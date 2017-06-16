@@ -35,12 +35,12 @@ class Jelpperi():
             response = requests.get(GIPHY_SEARCH_URL+search_term)
             try:
                 attachments = [{"title": search_terms, "image_url": json.loads(response.content)['data'][0]['images']['fixed_height']['url']}]
+                payload = {"message": message, "attachments": attachments}
             except IndexError:
                 message = "Sorry I didn't find any gif for that."
-                attachments = None
+                payload = {"message": message}
         else:
-            attachments = [{"image_url": search_terms}]
-        payload = {"message": message, "attachments": attachments}
+            payload = {"message": message, "attachments": [{"image_url": search_terms}]}
         return payload
 
     def giosg_name_checker(self, message=None, cont=False):
