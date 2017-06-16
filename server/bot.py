@@ -32,7 +32,7 @@ class Jelpperi():
         if not valid_url:
             search_term = search_terms.replace(' ', '+')
             response = requests.get(GIPHY_SEARCH_URL+search_term)
-            attachments = [{"title": search_terms, "image_url": json.loads(response.content)['data'][0]['url']}]
+            attachments = [{"title": search_terms, "image_url": json.loads(response.content)['data'][0]['images']['fixed_height']['url']}]
         else:
             attachments = [{"image_url": search_terms}]
         payload = {"message": "Have some gif", "attachments": attachments}
