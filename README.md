@@ -3,7 +3,15 @@
 This is a demo provided by Hogwarts to show what you can achieve with bots and rich chat messages. This is done via using Giosg's HTTP APIs with Flask server.
 
 ## Setting up local dev environment
+
+### Install requirements
+
+You should have your own virtualenv for this.
 `pip install -r requirements.txt`
+
+### Install Bot user for this
+
+Check the guide for setting up Chat Bot. Then fill the correct information to `dev.py`
 
 ## Running dev environment
 
