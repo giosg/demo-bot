@@ -11,7 +11,16 @@ You should have your own virtualenv for this.
 
 ### Install Bot user for this
 
-Check the guide for setting up Chat Bot. Then fill the correct information to `dev.py`
+Check the guide for setting up Chat Bot. Then add the correct information to your environment variables by using some simple script or so:
+
+``` python
+import os
+
+os.environ["BOT_USER_ID"] = "195fd907-36cd-11e6-9682-f45c89c72de3"
+os.environ["BOT_USER_API_TOKEN"] = "778c42087ae51f112bcedf500385113090d96e2f"
+os.environ["BOT_USER_ORGANIZATION_ID"] = "398b5138-3224-11e6-987e-f45c89c72de3"
+os.environ["SERVICE_URL"] = "http://localhost:8000"
+```
 
 ## Running dev environment
 
@@ -19,7 +28,7 @@ Our Flask application runs locally in `localhost:5000`
 
 ### Native
 
-1. Export the Flask Application to enviroment variables
+1. Export the Flask Application to environment variables
   - `export FLASK_APP=server/server.py`
 2. Run the server
   - `flask run`
@@ -34,6 +43,7 @@ You may want to the your docker image locally before publishing it:
 
 2. Run the flask server
   - `docker run -e FLASK_APP=server/server.py -p 5000:8000 <tag_name> flask run --host='0.0.0.0'`
+  - Also you have to provide Bot's ID etc as environment variables
 
 ### Publishing a new Docker image
 
