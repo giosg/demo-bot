@@ -6,5 +6,10 @@ TYPOED_GIOSG_NAMES = [
     'gesgo',
     'giosk',
     'geosgk',
-    'giska'
+    'giska',
+    'geosk',
+    'gesok',
+    'ciodg',
+    'geosg',
+    'geoskOS',
 ]
