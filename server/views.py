@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from flask import request
+from flask import request, abort
 from flask_restful import Resource
 from bot import Jelpperi
-from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID
+from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID, ALLOWED_REMOTE_ADDR
 import requests
 import urlparse
 import json
@@ -17,6 +17,11 @@ HEADERS = {
 
 
 class ChatMessageAPIView(Resource):
+
+    def __init__(self):
+        if request.remote_addr != ALLOWED_REMOTE_ADDR:
+            abort(403)
+
     def post(self):
         jelpperi = Jelpperi()
         json_data = request.get_json(force=True)
@@ -98,7 +103,7 @@ class ChatMessageAPIView(Resource):
             elif resource['message'] == '/end_chat':
                 participate_chat(chat_id)
                 payload = {"is_ended": True}
-                response = requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
+                requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             elif resource['message'].startswith('/giphy '):
                 participate_chat(chat_id)
