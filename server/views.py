@@ -3,9 +3,10 @@
 from flask import request
 from flask_restful import Resource
 from bot import Jelpperi
-from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL
+from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID
 import requests
 import urlparse
+import json
 
 
 # Usable headers for all the requests to giosg's system
@@ -23,11 +24,13 @@ class ChatMessageAPIView(Resource):
         # Format the data
         try:
             resource = json_data['resource']
-            resource_id = json_data['resource_id']  # noqa
-            action = json_data['action']  # noqa
             chat_id = json_data['resource']['chat_id']
-            print chat_id
+            room_id = json.loads(get_room_id(chat_id).content)['room_id']
         except KeyError:
+            return
+
+        # If the room is not the allowed room, then just return
+        if room_id != ALLOWED_ROOM_ID:
             return
 
         # Visitor side messages
@@ -104,4 +107,18 @@ def participate_chat(chat_id):
     requests.post(
         "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}/memberships".format(BOT_USER_ORGANIZATION_ID, chat_id),
         headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": True, "composing_status": "idle"}, timeout=5
+    )
+
+
+def leave_chat(chat_id):
+    requests.post(
+        "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}/memberships".format(BOT_USER_ORGANIZATION_ID, chat_id),
+        headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": False, "composing_status": "idle"}, timeout=5
+    )
+
+
+def get_room_id(chat_id):
+    return requests.get(
+        "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}".format(BOT_USER_ORGANIZATION_ID, chat_id),
+        headers=HEADERS, timeout=5
     )
