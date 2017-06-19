@@ -26,8 +26,13 @@ class ChatMessageAPIView(Resource):
             resource = json_data['resource']
             chat_id = json_data['resource']['chat_id']
             room_id = json.loads(get_room_id(chat_id).content)['room_id']
+            user_client_id = json.loads(get_user_client_id().content)['results'][0]['id']
         except KeyError:
             return
+
+        # Patch user client update
+        if resource['type'] == 'msg' or resource['type'] == 'action':
+            update_user_client_presence(user_client_id)
 
         # If the room is not the allowed room, then just return
         if room_id != ALLOWED_ROOM_ID:
@@ -53,11 +58,13 @@ class ChatMessageAPIView(Resource):
                         headers=HEADERS, json=payload, timeout=5
                     )
                 elif resource['response_value'] in ['correct', 'wrong']:
-                    payload = jelpperi.handle_giosg_name(resource['response_value'])
+                    payload, correct = jelpperi.handle_giosg_name(resource['response_value'])
                     requests.post(
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
+                    if correct:
+                        leave_chat(chat_id)
         elif resource['sender_type'] == 'user' and resource['message']:
             # Check for lunch request
             if resource['message'] == '/lunch':
@@ -92,7 +99,6 @@ class ChatMessageAPIView(Resource):
                 participate_chat(chat_id)
                 payload = {"is_ended": True}
                 response = requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
-                print response
 
             elif resource['message'].startswith('/giphy '):
                 participate_chat(chat_id)
@@ -105,20 +111,34 @@ class ChatMessageAPIView(Resource):
 
 def participate_chat(chat_id):
     requests.post(
-        "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}/memberships".format(BOT_USER_ORGANIZATION_ID, chat_id),
+        "{}/api/v5/orgs/{}/owned_chats/{}/memberships".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, chat_id),
         headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": True, "composing_status": "idle"}, timeout=5
     )
 
 
 def leave_chat(chat_id):
     requests.post(
-        "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}/memberships".format(BOT_USER_ORGANIZATION_ID, chat_id),
+        "{}/api/v5/orgs/{}/owned_chats/{}/memberships".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, chat_id),
         headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": False, "composing_status": "idle"}, timeout=5
+    )
+
+
+def get_user_client_id():
+    return requests.get(
+        "{}/api/v5/orgs/{}/users/{}/clients".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, BOT_USER_ID),
+        headers=HEADERS, timeout=5
+    )
+
+
+def update_user_client_presence(client_id):
+    return requests.patch(
+        "{}/api/v5/orgs/{}/users/{}/clients/{}".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, BOT_USER_ID, client_id),
+        headers=HEADERS, json={"presence_expires_in": 60}, timeout=5
     )
 
 
 def get_room_id(chat_id):
     return requests.get(
-        "http://localhost:8000/api/v5/orgs/{}/owned_chats/{}".format(BOT_USER_ORGANIZATION_ID, chat_id),
+        "{}/api/v5/orgs/{}/owned_chats/{}".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, chat_id),
         headers=HEADERS, timeout=5
     )

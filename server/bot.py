@@ -19,9 +19,11 @@ class Jelpperi():
         if response_value == 'wrong':
             payload = self.giosg_name_checker(message=None, cont=True)
             payload['message'] = "That didn't quite hit the mark. Let's try again!"
+            correct = False
         else:
             payload = {"message": "Cheers! You have finally learned how to spell quiskue correctly."}
-        return payload
+            correct = True
+        return payload, correct
 
     # Getters
     def get_giphy_link(self, search_terms, valid_url):
