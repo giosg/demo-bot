@@ -3,7 +3,7 @@
 from flask import request, abort
 from flask_restful import Resource
 from bot import Jelpperi
-from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID, ALLOWED_REMOTE_ADDR
+from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID, SECRET_STRING
 import requests
 import urlparse
 import json
@@ -19,7 +19,7 @@ HEADERS = {
 class ChatMessageAPIView(Resource):
 
     def __init__(self):
-        if request.remote_addr != ALLOWED_REMOTE_ADDR:
+        if request.args.get('secret') != SECRET_STRING:
             abort(403)
 
     def post(self):

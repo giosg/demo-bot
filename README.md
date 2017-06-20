@@ -35,7 +35,7 @@ export BOT_USER_API_TOKEN="778c42087ae51f112bcedf500385113090d96e2f"
 export BOT_USER_ORGANIZATION_ID="398b5138-3224-11e6-987e-f45c89c72de3"
 export SERVICE_URL="http://localhost:8000"
 export ALLOWED_ROOM_ID="e56bf487-3398-11e6-a41a-f45c89c72de3"
-export ALLOWED_REMOTE_ADDR="127.0.0.1"
+export SECRET_STRING="bEsTsEcReT"
 ```
 
 ## Running dev environment
