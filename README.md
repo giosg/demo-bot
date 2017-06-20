@@ -4,14 +4,30 @@ This is a demo provided by Hogwarts to show what you can achieve with bots and r
 
 ## Setting up local dev environment
 
+### Clone the repository
+
+    git clone git@github.com:giosg/demo-bot.git
+
 ### Install requirements
 
-You should have your own virtualenv for this.
-`pip install -r requirements.txt`
+Create a **Python 2.7** virtualenv for the project:
+
+    cd demo-bot
+    mkvirtualenv -a . -r requirements.txt demo-bot
+
+To later switch to the virtualenv and to the folder:
+
+    workon demo-bot
+
+To ensure that you have the latest PIP requirements installed:
+
+    pip install -r requirements.txt
 
 ### Install Bot user for this
 
-Check the guide for setting up Chat Bot. Then add the correct information to your environment variables by using some simple script or so:
+Check the guide for setting up Chat Bot. Then add the correct information to your environment variables required by the bot.
+
+**TIP:** You can add these lines to the virtualenv postactive hook file (`$VIRTUAL_ENV/bin/postactivate`), so that they are automatically applied whenever you `workon` on your virtualenv!
 
 ``` bash
 export BOT_USER_ID="195fd907-36cd-11e6-9682-f45c89c72de3"
