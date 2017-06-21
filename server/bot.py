@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from typos import TYPOED_GIOSG_NAMES
-import datetime
+from .conf import OPEN_WEATHER_MAP_API_KEY
+from datetime import datetime
 import requests
 import json
 
@@ -9,7 +10,7 @@ import json
 GIPHY_SEARCH_URL = 'http://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&limit=1&q='
 
 
-class Jelpperi():
+class Jelpperi(object):
 
     # Handlers
     def handle_feedback(self):
@@ -82,7 +83,7 @@ class Jelpperi():
         return
 
     def get_lunch(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
 
         # Get sodexo courses and format them
         response = requests.get(
@@ -136,3 +137,31 @@ class Jelpperi():
         }]
         message = {"message": "We would like to hear your feedback about this conversation", "attachments": attachments}
         return message
+
+    def get_weather_forecast(self, city_name, country_code):
+        """
+        Returns a message payload for a 5 day weather forecast for the
+        given city name and the country code.
+        """
+        url = "http://api.openweathermap.org/data/2.5/forecast?q={},{}&appid={}".format(
+            city_name, country_code, OPEN_WEATHER_MAP_API_KEY,
+        )
+        response = requests.get(url, headers={"Accept": "application/json"})
+        response.raise_for_status()
+        results = response.json()
+        text = "\n\n".join(
+            "**{date}**: {weather} ![{weather}]({icon_url})".format(
+                date=datetime.fromtimestamp(result['dt']).strftime("%A at %H"),
+                weather=weather['main'],
+                icon_url="http://openweathermap.org/img/w/{}.png".format(weather['icon']),
+            ) for result in results['list'] for weather in result['weather']
+        )
+        return {
+            "type": "msg",
+            "message": "Here's the 5 day weather forecast for {}".format(city_name),
+            "attachments": [
+                {
+                    "text": text,
+                }
+            ]
+        }
