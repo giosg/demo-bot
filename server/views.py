@@ -45,6 +45,10 @@ class ChatMessageAPIView(Resource):
         sender_type = resource['sender_type']
         message = resource['message']
 
+        # Never react to own messages
+        if resource['sender_id'] == BOT_USER_ID:
+            return
+
         # Patch user client update
         if message_type == 'msg' or message_type == 'action':
             update_user_client_presence(user_client_id)
@@ -120,7 +124,7 @@ class ChatMessageAPIView(Resource):
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for feedback request
-            elif message == '/feedback' or ('feedback' in message and resource['sender_id'] != BOT_USER_ID):
+            elif 'feedback' in message:
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
