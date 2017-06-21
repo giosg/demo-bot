@@ -1,3 +1,6 @@
 Lib
 include
 *.pyc
+
+# Ignore Visual Studio code personal settings
+/.vscode/
