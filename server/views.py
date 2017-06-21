@@ -78,7 +78,7 @@ class ChatMessageAPIView(Resource):
                         headers=HEADERS, json=payload, timeout=5
                     )
                 # Check if the visitor is asking the coffee situation
-                elif "coffee" in resource['message'].lower():
+                elif "coffee" in message.lower():
                     payload = jelpperi.get_covfefe()
                     create_chat_memberhip(chat_id)
                     return requests.post(
@@ -86,7 +86,7 @@ class ChatMessageAPIView(Resource):
                         headers=HEADERS, json=payload, timeout=5
                     )
                 # Check if the visitor is asking for lunch
-                elif "hungry" in resource['message'].lower():
+                elif "hungry" in message.lower() or "lunch" in message.lower():
                     payload = jelpperi.get_lunch()
                     create_chat_memberhip(chat_id)
                     return requests.post(
@@ -118,19 +118,19 @@ class ChatMessageAPIView(Resource):
                 )
 
             # Check for coffee request
-            elif message == '/coffee':
+            elif 'coffee' in message.lower():
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_covfefe()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for feedback request
-            elif 'feedback' in message:
+            elif 'feedback' in message.lower():
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for end chat request
-            elif message == '/end_chat':
+            elif message == '/end_chat' or 'end this chat' in message.lower():
                 create_chat_memberhip(chat_id)
                 payload = {"is_ended": True}
                 return requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
