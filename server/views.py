@@ -49,7 +49,7 @@ class ChatMessageAPIView(Resource):
                 # Check all the visitor's message if they contain wrongly typed giosg
                 payload = jelpperi.giosg_name_checker(resource['message'])
                 if payload:
-                    participate_chat(chat_id)
+                    create_chat_memberhip(chat_id)
                     requests.post(
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
@@ -68,8 +68,6 @@ class ChatMessageAPIView(Resource):
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
-                    if correct:
-                        leave_chat(chat_id)
         elif resource['sender_type'] == 'user' and resource['message']:
             # Check for lunch request
             if resource['message'] == '/lunch':
@@ -89,24 +87,24 @@ class ChatMessageAPIView(Resource):
 
             # Check for coffee request
             elif resource['message'] == '/coffee':
-                participate_chat(chat_id)
+                create_chat_memberhip(chat_id)
                 payload = jelpperi.get_covfefe()
                 requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for feedback request
             elif resource['message'] == '/feedback':
-                participate_chat(chat_id)
+                create_chat_memberhip(chat_id)
                 payload = jelpperi.get_feedback()
                 requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for end chat request
             elif resource['message'] == '/end_chat':
-                participate_chat(chat_id)
+                create_chat_memberhip(chat_id)
                 payload = {"is_ended": True}
                 requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             elif resource['message'].startswith('/giphy '):
-                participate_chat(chat_id)
+                create_chat_memberhip(chat_id)
                 message = resource['message'][7:]
                 payload = jelpperi.get_giphy_link(message, bool(urlparse.urlparse(message).scheme))
                 requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
@@ -114,14 +112,10 @@ class ChatMessageAPIView(Resource):
         return {'detail': 'Ok'}
 
 
-def participate_chat(chat_id):
-    requests.post(
-        "{}/api/v5/orgs/{}/owned_chats/{}/memberships".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, chat_id),
-        headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": True, "composing_status": "idle"}, timeout=5
-    )
-
-
-def leave_chat(chat_id):
+def create_chat_memberhip(chat_id):
+    """
+    Adds the bot as a member to the given chat.
+    """
     requests.post(
         "{}/api/v5/orgs/{}/owned_chats/{}/memberships".format(SERVICE_URL, BOT_USER_ORGANIZATION_ID, chat_id),
         headers=HEADERS, json={"member_id": BOT_USER_ID, "is_participating": False, "composing_status": "idle"}, timeout=5
