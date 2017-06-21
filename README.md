@@ -23,9 +23,22 @@ To ensure that you have the latest PIP requirements installed:
 
     pip install -r requirements.txt
 
-### Install Bot user for this
+### Install a giosg app
 
-Check the guide for setting up Chat Bot. Then add the correct information to your environment variables required by the bot.
+Check the guide for setting up a *giosg APP* for the Chat Bot.
+You need to define a webhook for the following channel:
+
+    /api/v5/orgs/{organization_id}/owned_chats/*/messages
+
+Any *additions* to this channel should be notified to the following URL:
+
+    http://localhost:5000/chat_messages?secret=bEsTsEcReT
+
+The `secret` should be replaced with your custom random secret string.
+
+### Set up environment variables
+
+Add the correct information to your environment variables required by the bot.
 
 **TIP:** You can add these lines to the virtualenv postactive hook file (`$VIRTUAL_ENV/bin/postactivate`), so that they are automatically applied whenever you `workon` on your virtualenv!
 
@@ -36,6 +49,7 @@ export BOT_USER_ORGANIZATION_ID="398b5138-3224-11e6-987e-f45c89c72de3"
 export SERVICE_URL="http://localhost:8000"
 export ALLOWED_ROOM_ID="e56bf487-3398-11e6-a41a-f45c89c72de3"
 export SECRET_STRING="bEsTsEcReT"
+export FLASK_APP="server/server.py"
 ```
 
 ## Running dev environment
@@ -44,10 +58,9 @@ Our Flask application runs locally in `localhost:5000`
 
 ### Native
 
-1. Export the Flask Application to environment variables
-  - `export FLASK_APP=server/server.py`
-2. Run the server
-  - `flask run`
+Run the server
+
+    flask run
 
 ### Docker
 
