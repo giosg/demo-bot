@@ -66,12 +66,12 @@ class Jelpperi(object):
                     "is_disabled_on_visitor_message": True
                 },
                 {
-                    "text": "geosk OS system",
-                    "type": "button",
-                    "value": "wrong",
-                    "style": "danger",
-                    "is_disabled_on_selection": True,
-                    "is_disabled_on_visitor_message": True
+                    "text": "Learn more",
+                    "type": "link_button",
+                    "value": "https://www.giosg.com/",
+                    "style": "link",
+                    "is_disabled_on_selection": False,
+                    "is_disabled_on_visitor_message": False
                 }
             ]
             attachments = [{
