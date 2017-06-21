@@ -5,6 +5,7 @@ from .conf import OPEN_WEATHER_MAP_API_KEY
 from datetime import datetime
 import requests
 import json
+import random
 
 
 GIPHY_SEARCH_URL = 'http://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&limit=1&q='
@@ -90,10 +91,23 @@ class Jelpperi(object):
             "http://www.sodexo.fi/ruokalistat/output/daily_json/101/{}/{}/{}/fi".format(now.year, now.month, now.day)
         )
 
+        list_of_food_urls = [
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/1200px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+            "http://i.huffpost.com/gen/4451422/images/o-FOOD-facebook.jpg",
+            "https://static.independent.co.uk/s3fs-public/styles/article_small/public/thumbnails/image/2016/12/19/18/sush0istock-gkrphoto.jpg",
+            "http://www.adeleruns.com/wp-content/uploads/2017/05/Angel-Food-High-Res-6766.jpeg",
+            "https://timedotcom.files.wordpress.com/2015/01/food-candy-snacks-5.jpg?quality=85",
+            "http://www.fnstatic.co.uk/images/content/package/50-barbecue-recipes-to-feed-a-crowd_1.jpeg",
+            "https://eat24-files-live.s3.amazonaws.com/cuisines/v4/thai.jpg?Signature=RmpeH1GzujFSeLYiumllnNhJOw4%3D&Expires=1498043368&AWSAccessKeyId=AKIAIEJ2GCCJRT63TBYA",
+            "https://cdn.firstwefeast.com/assets/2014/06/octopus.jpg",
+            "https://1.bp.blogspot.com/-Sj6LLT_xt8c/Tw8N1EsQR-I/AAAAAAAACYM/ZBfRFa3fANk/s1600/IMG_0037.JPG",
+            "https://upload.wikimedia.org/wikipedia/en/thumb/c/ca/Sodexo.svg/1200px-Sodexo.svg.png"
+        ]
+
         # Add Roseway foods
         courses = [{"title": "Roseway", "text": u'Inkkari, kebab, rasvalätty ja leike tänäänkin rosewayssa ruokana', "image_url": "http://www.ravintolaroseway.fi/img/img_food/WP_20140920_0021.jpg"}]
         for course in json.loads(response.content)['courses']:
-            courses.append({"title": "Sodexo", "text": course['title_fi'], "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/c/ca/Sodexo.svg/1200px-Sodexo.svg.png"})
+            courses.append({"title": "Sodexo", "text": course['title_fi'], "image_url": random.choice(list_of_food_urls)})
         return {"message": "Tänään on ruokana", "attachments": courses}
 
     def get_covfefe(self):
