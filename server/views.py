@@ -41,8 +41,12 @@ class ChatMessageAPIView(Resource):
         except KeyError:
             return
 
+        message_type = resource['type']
+        sender_type = resource['sender_type']
+        message = resource['message']
+
         # Patch user client update
-        if resource['type'] == 'msg' or resource['type'] == 'action':
+        if message_type == 'msg' or message_type == 'action':
             update_user_client_presence(user_client_id)
 
         # If the room is not the allowed room, then just return
@@ -50,10 +54,10 @@ class ChatMessageAPIView(Resource):
             return
 
         # Visitor side messages
-        if resource['sender_type'] == 'visitor':
-            if resource['type'] == 'msg':
+        if sender_type == 'visitor':
+            if message_type == 'msg':
                 # Check all the visitor's message if they contain wrongly typed giosg
-                payload = jelpperi.giosg_name_checker(resource['message'])
+                payload = jelpperi.giosg_name_checker(message)
                 if payload:
                     create_chat_memberhip(chat_id)
                     return requests.post(
@@ -62,7 +66,7 @@ class ChatMessageAPIView(Resource):
                     )
 
                 # Otherwise check if the visitor is asking the weather
-                if "weather" in resource['message'].lower():
+                if "weather" in message.lower():
                     payload = jelpperi.get_weather_forecast("Helsinki", "fi")
                     create_chat_memberhip(chat_id)
                     return requests.post(
@@ -86,7 +90,7 @@ class ChatMessageAPIView(Resource):
                         headers=HEADERS, json=payload, timeout=5
                     )
 
-            elif resource['type'] == 'action':
+            elif message_type == 'action':
                 if resource['response_value'] in ['yes', 'no', 'maybe']:
                     payload = jelpperi.handle_feedback()
                     return requests.post(
@@ -99,9 +103,9 @@ class ChatMessageAPIView(Resource):
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
-        elif resource['sender_type'] == 'user' and resource['message']:
+        elif sender_type == 'user' and message:
             # Check for lunch request
-            if resource['message'] == '/lunch':
+            if message == '/lunch':
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_lunch()
                 return requests.post(
@@ -110,26 +114,26 @@ class ChatMessageAPIView(Resource):
                 )
 
             # Check for coffee request
-            elif resource['message'] == '/coffee':
+            elif message == '/coffee':
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_covfefe()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for feedback request
-            elif resource['message'] == '/feedback' or ('feedback' in resource['message'] and resource['sender_id'] != BOT_USER_ID):
+            elif message == '/feedback' or ('feedback' in message and resource['sender_id'] != BOT_USER_ID):
                 create_chat_memberhip(chat_id)
                 payload = jelpperi.get_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for end chat request
-            elif resource['message'] == '/end_chat':
+            elif message == '/end_chat':
                 create_chat_memberhip(chat_id)
                 payload = {"is_ended": True}
                 return requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
-            elif resource['message'].startswith('/giphy '):
+            elif message.startswith('/giphy '):
                 create_chat_memberhip(chat_id)
-                message = resource['message'][7:]
+                message = message[7:]
                 payload = jelpperi.get_giphy_link(message, bool(urlparse.urlparse(message).scheme))
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
