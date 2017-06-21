@@ -165,3 +165,24 @@ class Jelpperi(object):
                 }
             ]
         }
+
+    def get_wombat_info(self):
+        return {
+            "type": "msg",
+            "message": "Wikipedia says the following thing about wombats:",
+            "attachments": [
+                {
+                    "title": "Wombat",
+                    "title_link_url": "https://en.wikipedia.org/wiki/Wombat",
+                    "text": \
+                        "**Wombats** are short-legged, muscular [quadrupedal](https://en.wikipedia.org/wiki/Quadruped) "\
+                        "[marsupials](https://en.wikipedia.org/wiki/Marsupial) that are native to [Australia](https://en.wikipedia.org/wiki/Australia). "\
+                        "They are about 1 m (40 in) in length with small, stubby tails. There are three extant species and they are "\
+                        "all members of the [family](https://en.wikipedia.org/wiki/Family_(biology)) **Vombatidae**.\n\n"\
+                        "They are not commonly seen, but leave ample evidence of their passage, treating fences as minor "\
+                        "inconveniences to be gone through or under, and leaving distinctive cubic [faeces](https://en.wikipedia.org/wiki/Faeces).",
+                    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Vombatus_ursinus_-Maria_Island_National_Park.jpg/440px-Vombatus_ursinus_-Maria_Island_National_Park.jpg",
+                    "image_link_url": "https://en.wikipedia.org/wiki/Wombat",
+                }
+            ]
+        }

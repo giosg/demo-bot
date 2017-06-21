@@ -93,6 +93,14 @@ class ChatMessageAPIView(Resource):
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
+                # Give information about wombats
+                elif "wombat" in message.lower():
+                    payload = jelpperi.get_wombat_info()
+                    create_chat_memberhip(chat_id)
+                    return requests.post(
+                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
+                        headers=HEADERS, json=payload, timeout=5
+                    )
 
             elif message_type == 'action':
                 if resource['response_value'] in ['yes', 'no', 'maybe']:
