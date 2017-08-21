@@ -59,7 +59,7 @@ class ChatMessageAPIView(Resource):
         # Visitor side messages
         if sender_type == 'visitor':
             if message_type == 'action':
-                if resource['response_value'] in ['yes', 'no', 'maybe']:
+                if resource['response_value'] in ['yes', 'no', 'maybe', '1', '2', '3', '4', '5']:
                     payload = chat_bot.handle_feedback()
                     return requests.post(
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
@@ -68,9 +68,15 @@ class ChatMessageAPIView(Resource):
 
         elif sender_type == 'user' and message:
             # Check for feedback request
-            if 'feedback' in message.lower():
+            if message == '/feedback':
                 create_chat_memberhip(chat_id)
                 payload = chat_bot.get_feedback()
+                return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
+
+            # Check for numeric feedback request
+            elif message == '/numeric_feedback':
+                create_chat_memberhip(chat_id)
+                payload = chat_bot.get_numeric_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for end chat request
