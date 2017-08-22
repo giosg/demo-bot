@@ -50,8 +50,6 @@ export SERVICE_URL="http://localhost:8000"
 export ALLOWED_ROOM_ID="e56bf487-3398-11e6-a41a-f45c89c72de3"
 export SECRET_STRING="bEsTsEcReT"
 export FLASK_APP="server/server.py"
-# Optional: an API key for OpenWeatherMap
-export OPEN_WEATHER_MAP_API_KEY="abcdefghijklmnopqrstuvwxyz012345"
 ```
 
 ## Running dev environment
