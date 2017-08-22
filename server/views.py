@@ -2,10 +2,9 @@
 
 from flask import request, abort
 from flask_restful import Resource
-from bot import Jelpperi
+from bot import ChatBot
 from conf import BOT_USER_ID, BOT_USER_API_TOKEN, BOT_USER_ORGANIZATION_ID, SERVICE_URL, ALLOWED_ROOM_ID, SECRET_STRING
 import requests
-import urlparse
 import json
 
 
@@ -29,7 +28,7 @@ class ChatMessageAPIView(Resource):
         return {'detail': 'Ok'}
 
     def handle_resource(self):
-        jelpperi = Jelpperi()
+        chat_bot = ChatBot()
         json_data = request.get_json(force=True)
 
         # Format the data
@@ -59,82 +58,32 @@ class ChatMessageAPIView(Resource):
 
         # Visitor side messages
         if sender_type == 'visitor':
-            if message_type == 'msg':
-                # Check all the visitor's message if they contain wrongly typed giosg
-                payload = jelpperi.giosg_name_checker(message)
-                if payload:
-                    create_chat_memberhip(chat_id)
+            if message_type == 'action':
+                if resource['response_value'] in ['yes', 'no', 'maybe', '1', '2', '3', '4', '5']:
+                    payload = chat_bot.handle_feedback()
                     return requests.post(
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
+            elif message_type == 'msg':
+                if 'jacket' in message:
+                    if any(x in message for x in ['women', 'woman', 'female']):
+                        payload = chat_bot.request_jacket_suggestions("female")
+                    else:
+                        payload = chat_bot.request_jacket_suggestions("male")
+                    return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
-                # Otherwise check if the visitor is asking the weather
-                if "weather" in message.lower():
-                    payload = jelpperi.get_weather_forecast("Helsinki", "fi")
-                    create_chat_memberhip(chat_id)
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
-                # Check if the visitor is asking the coffee situation
-                elif "coffee" in message.lower():
-                    payload = jelpperi.get_covfefe()
-                    create_chat_memberhip(chat_id)
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
-                # Check if the visitor is asking for lunch
-                elif "hungry" in message.lower() or "lunch" in message.lower():
-                    payload = jelpperi.get_lunch()
-                    create_chat_memberhip(chat_id)
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
-                # Give information about wombats
-                elif "wombat" in message.lower():
-                    payload = jelpperi.get_wombat_info()
-                    create_chat_memberhip(chat_id)
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
-
-            elif message_type == 'action':
-                if resource['response_value'] in ['yes', 'no', 'maybe']:
-                    payload = jelpperi.handle_feedback()
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
-                elif resource['response_value'] in ['correct', 'wrong']:
-                    payload, correct = jelpperi.handle_giosg_name(resource['response_value'])
-                    return requests.post(
-                        "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                        headers=HEADERS, json=payload, timeout=5
-                    )
         elif sender_type == 'user' and message:
-            # Check for lunch request
-            if message == '/lunch':
+            # Check for feedback request
+            if message == '/feedback':
                 create_chat_memberhip(chat_id)
-                payload = jelpperi.get_lunch()
-                return requests.post(
-                    "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
-                    headers=HEADERS, json=payload, timeout=5
-                )
-
-            # Check for coffee request
-            elif 'coffee' in message.lower():
-                create_chat_memberhip(chat_id)
-                payload = jelpperi.get_covfefe()
+                payload = chat_bot.get_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
-            # Check for feedback request
-            elif 'feedback' in message.lower():
+            # Check for numeric feedback request
+            elif message == '/numeric_feedback':
                 create_chat_memberhip(chat_id)
-                payload = jelpperi.get_feedback()
+                payload = chat_bot.get_numeric_feedback()
                 return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
             # Check for end chat request
@@ -142,12 +91,6 @@ class ChatMessageAPIView(Resource):
                 create_chat_memberhip(chat_id)
                 payload = {"is_ended": True}
                 return requests.patch("{}/api/v5/users/{}/chats/{}".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
-
-            elif message.startswith('/giphy '):
-                create_chat_memberhip(chat_id)
-                message = message[7:]
-                payload = jelpperi.get_giphy_link(message, bool(urlparse.urlparse(message).scheme))
-                return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
 
 def create_chat_memberhip(chat_id):
