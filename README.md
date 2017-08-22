@@ -75,12 +75,3 @@ You may want to the your docker image locally before publishing it:
 2. Run the flask server
   - `docker run -e FLASK_APP=server/server.py -p 5000:8000 <tag_name> flask run --host='0.0.0.0'`
   - Also you have to provide Bot's ID etc as environment variables
-
-### Publishing a new Docker image
-
-You must have login credentials to Giosg docker hub. After this you can start publishing.
-
-1. `docker login`
-2. `docker push giosg/hogwarts_bot_demo:<tag_name>`
-
-Cheers! Your docker image is now uploaded to Giosg's docker hub and you may start using it.
