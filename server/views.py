@@ -65,6 +65,13 @@ class ChatMessageAPIView(Resource):
                         "{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id),
                         headers=HEADERS, json=payload, timeout=5
                     )
+            elif message_type == 'msg':
+                if 'jacket' in message:
+                    if any(x in message for x in ['women', 'woman', 'female']):
+                        payload = chat_bot.request_jacket_suggestions("female")
+                    else:
+                        payload = chat_bot.request_jacket_suggestions("male")
+                    return requests.post("{}/api/v5/users/{}/chats/{}/messages".format(SERVICE_URL, BOT_USER_ID, chat_id), headers=HEADERS, json=payload, timeout=5)
 
         elif sender_type == 'user' and message:
             # Check for feedback request
