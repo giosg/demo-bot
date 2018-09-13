@@ -2,6 +2,9 @@
 
 
 class ChatBot(object):
+    """
+    Bot implementation which contains oiqhwg
+    """
 
     # Handlers
     def handle_feedback(self):
@@ -41,54 +44,41 @@ class ChatBot(object):
         message = {"message": "We would like to hear your feedback about this conversation", "attachments": attachments}
         return message
 
-    def get_numeric_feedback(self):
+    def get_link_options(self):
         actions = [
             {
-                "text": "1",
-                "type": "button",
-                "value": "1",
-                "style": "info",
+                "text": "Customer service agent",
+                "type": "link_button",
+                "link_target": "_parent",
+                "value": "https://www.giosg.com/support/user",
+                "style": "brand_primary",
                 "is_disabled_on_selection": True,
                 "is_disabled_on_visitor_message": False
             },
             {
-                "text": "2",
-                "type": "button",
-                "value": "2",
-                "style": "info",
+                "text": "Manager user",
+                "type": "link_button",
+                "link_target": "_parent",
+                "value": "https://www.giosg.com/support/manager",
+                "style": "brand_primary",
                 "is_disabled_on_selection": True,
                 "is_disabled_on_visitor_message": False
             },
             {
-                "text": "3",
-                "type": "button",
-                "value": "3",
-                "style": "info",
+                "text": "Developer",
+                "type": "link_button",
+                "link_target": "_parent",
+                "value": "https://www.giosg.com/support/developer",
+                "style": "brand_primary",
                 "is_disabled_on_selection": True,
                 "is_disabled_on_visitor_message": False
-            },
-            {
-                "text": "4",
-                "type": "button",
-                "value": "4",
-                "style": "info",
-                "is_disabled_on_selection": True,
-                "is_disabled_on_visitor_message": False
-            },
-            {
-                "text": "5",
-                "type": "button",
-                "value": "5",
-                "style": "info",
-                "is_disabled_on_selection": True,
-                "is_disabled_on_visitor_message": False
-            },
+            }
         ]
         attachments = [{
-            "text": "From 1 to 5, how would you rate this conversation?",
+            "text": "Welcome to giosg's support side,",
             "actions": actions
         }]
-        message = {"message": "We would like to hear your feedback about this conversation.", "attachments": attachments}
+        message = {"message": "are you:", "attachments": attachments}
         return message
 
     def get_jacket_suggestions(self, gender):
