@@ -89,6 +89,16 @@ class ChatMessageAPIView(APIView):
             pass
         # 3. A response to feedback
         elif self.resource.get(''):
-            self.bot.check_operator_online_status()
+            # If the response was not sufficient, invite assigned team to chat if online, otherwise show leadform
+            # Showing leadform itself is done by using RULES together with messages
+            if self.resource.get('response_value') == 'no':
+                operators_online = self.bot.check_assigned_team_online_status(organization_id=self.organization_id)
+                if operators_online:
+                    self.bot.invite_assigned_team_to_chat(user_id=self.user_id, chat_id=chat_id)
+                else:
+                    self.bot.leave_leadform_helpers(user_id=self.user_id, chat_id=chat_id)
+            # Response was either sufficient or the bot handled as much it could, bid farewells and leave the chat conversation
+            self.bot.send_farewell_messages(user_id=self.user_id, chat_id=chat_id)
+            self.bot.leave_chat_conversation(user_id=self.user_id, chat_id=chat_id)
 
         return {'detail': 'OK'}
