@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from conf import INVITEE_TEAM_ID
+from conf import INVITEE_TEAM_NAME
 from giosg import APIClient
 
 
@@ -191,41 +191,57 @@ class ChatBot(object):
         )
 
     def react_to_request_human(self, chat_id):
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/outgoing_chat_invitations'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "invited_team_id": INVITEE_TEAM_ID,
-            },
+        online_team = self.api.search(
+            '/api/v5/orgs/{organization_id}/teams'.format(**self.auth),
+            lambda team: team['is_online'] and team['name'].lower() == INVITEE_TEAM_NAME.lower()
         )
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "message": "OK, I invited my fellow human co-worker to this chat! They will join in a moment and I'll leave you guys!",
-            },
-        )
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "message": "But before I go, could you tell me if you found this information helpful?",
-                "attachments": [{
-                    "actions": [{
-                        "text": "Yes",
-                        "type": "button",
-                        "value": "positive_feedback",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "No",
-                        "type": "button",
-                        "value": "negative_feedback",
-                        "style": "brand_secondary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }]
-                }],
-            },
-        )
+        if online_team:
+            self.api.create(
+                url='/api/v5/users/{user_id}/chats/{chat_id}/outgoing_chat_invitations'.format(chat_id=chat_id, **self.auth),
+                payload={
+                    "invited_team_id": online_team['id'],
+                },
+            )
+            self.api.create(
+                url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
+                payload={
+                    "message": "OK, I invited my fellow human co-worker to this chat! They will join in a moment and I'll leave you guys!",
+                },
+            )
+            self.api.create(
+                url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
+                payload={
+                    "message": "But before I go, could you tell me if you found this information helpful?",
+                    "attachments": [{
+                        "actions": [{
+                            "text": "Yes",
+                            "type": "button",
+                            "value": "positive_feedback",
+                            "style": "brand_primary",
+                            "is_disabled_on_selection": True,
+                            "is_disabled_on_visitor_message": False
+                        }, {
+                            "text": "No",
+                            "type": "button",
+                            "value": "negative_feedback",
+                            "style": "brand_secondary",
+                            "is_disabled_on_selection": True,
+                            "is_disabled_on_visitor_message": False
+                        }]
+                    }],
+                },
+            )
+        else:
+            # Did not find an online team to invite to this chat
+            self.api.create(
+                url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
+                payload={
+                    "message": "Oh, sorry but could not find online customer service agents! They might have just left!",
+                    "attachments": [{
+                        "text": "Maybe you could [send them email](mailto:support@giosg.com) instead?",
+                    }],
+                },
+            )
 
     def react_to_positive_feedback(self, chat_id):
         self.api.create(

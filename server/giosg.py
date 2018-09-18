@@ -8,12 +8,7 @@ class APIClient:
         self.auth = auth
 
     def list(self, url):
-        results = []
-        while url:
-            page = self.retrieve(url)
-            results.extend(page['results'])
-            url = page['next']
-        return results
+        return list(self.iterate(url))
 
     def retrieve(self, url):
         session = retry_session(2)
@@ -46,3 +41,16 @@ class APIClient:
         })
         response.raise_for_status()
         return response.json()
+
+    def search(self, url, checker):
+        for result in self.iterate(url):
+            if checker(result):
+                return result
+        return None
+
+    def iterate(self, url):
+        while url:
+            page = self.retrieve(url)
+            for result in page['results']:
+                yield result
+            url = page['next']
