@@ -1,26 +1,32 @@
 # -*- coding: utf-8 -*-
 
+from conf import SERVICE_URL
 from retry_session import retry_session
 
 
 class ChatBot(object):
     """
-    Bot implementation which contains oiqhwg
+    Bot implementation which contains all functionality e.g.
+    sending new chat message or updating presence in giosg system.
     """
     def __init__(self):
-        # Try to retry twice
+        # Initialize session and try to retry twice.
         self.session = retry_session(2)
 
-    def update_or_create_user_client(user_id):
+    def update_or_create_user_client(self, user_id):
+        # Get existing user client if one
+        response = self.session.get('https://{}/api/v5/users/{}/clients'.format(SERVICE_URL, user_id))
+
+        # If existing user client was found, update it otherwise create new
         pass
 
-    def is_allowed_to_join(user_id, chat_id):
+    def is_allowed_to_join(self, user_id, chat_id):
         pass
 
-    def join_to_chat(user_id, chat_id):
+    def join_to_chat(self, user_id, chat_id):
         pass
 
-    def send_welcoming_message(user_id, chat_id):
+    def send_welcoming_message(self, user_id, chat_id):
         """
         Format welcoming message and makes API request
         """
@@ -60,30 +66,23 @@ class ChatBot(object):
         message = {"message": "Welcome to giosg's support side,", "attachments": attachments}
         return message
 
-    def handle_visitor_message(user_id):
+    def handle_visitor_message(self, user_id):
         pass
 
-    def send_feedback_message(user_id, chat_id):
+    def send_feedback_message(self, user_id, chat_id):
         pass
 
     def check_assigned_team_online_status(organization_id):
         pass
 
-    def invite_assigned_team_to_chat(user_id, chat_id):
+    def invite_assigned_team_to_chat(self, user_id, chat_id):
         pass
 
-    def leave_leadform_helpers(user_id, chat_id):
+    def leave_leadform_helpers(self, user_id, chat_id):
         pass
 
-    def send_farewell_messages(user_id, chat_id):
+    def send_farewell_messages(self, user_id, chat_id):
         pass
 
-    def leave_chat_conversation(user_id, chat_id):
+    def leave_chat_conversation(self, user_id, chat_id):
         pass
-
-    # Handlers
-    def handle_welcoming_message(self):
-        pass
-
-    def handle_feedback(self):
-        return {"message": "Thank you for participating our feedback survey."}

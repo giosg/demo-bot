@@ -8,7 +8,9 @@ from conf import SECRET_STRING
 
 class APIView(Resource):
     """
-    ASDASD
+    API view which contains parsing request data,
+    initial request handling, and updating user client.
+    Other API views should extend this one.
     """
     def __init__(self):
         # Very low level authentication based on given secret
@@ -41,7 +43,7 @@ class APIView(Resource):
         self.bot = ChatBot()
 
         # Update bot's user client or create new user client if none found
-        self.bot.update_or_create_user_client(self.user_id)
+        self.bot.update_or_create_user_client(user_id=self.user_id)
 
 
 class ChatAPIView(APIView):
@@ -86,7 +88,7 @@ class ChatMessageAPIView(APIView):
             self.bot.handle_visitor_message(user_id=self.user_id, chat_id=chat_id)
         # 2. A response to welcoming message
         elif self.resource.get(''):
-            pass
+            self.bot.send_feedback_message(user_id=self.user_id, chat_id=chat_id)
         # 3. A response to feedback
         elif self.resource.get(''):
             # If the response was not sufficient, invite assigned team to chat if online, otherwise show leadform
