@@ -78,31 +78,27 @@ class ChatMessageAPIView(APIView):
     """
     def post(self):
         super(ChatMessageAPIView, self).post()
-        chat_id = self.resource.get('chat_id')
+        chat_id = self.resource['chat_id']
 
-        # Never react to own message
-        if self.resource.get('sender_id') == self.user_id:
+        # Only react to messages from a visitor, not from this bot or users
+        if self.resource['sender_type'] == 'user':
             return
 
-        # Check is it either:
-        # 1. A visitor message
-        if self.resource.get('type') != 'action':
-            self.bot.handle_visitor_message(chat_id=chat_id)
-        # 2. A response to welcoming message
-        elif self.resource.get(''):
-            self.bot.send_feedback_message(chat_id=chat_id)
-        # 3. A response to feedback
-        elif self.resource.get(''):
-            # If the response was not sufficient, invite assigned team to chat if online, otherwise show leadform
-            # Showing leadform itself is done by using RULES together with messages
-            if self.resource.get('response_value') == 'no':
-                operators_online = self.bot.check_assigned_team_online_status()
-                if operators_online:
-                    self.bot.invite_assigned_team_to_chat(chat_id=chat_id)
-                else:
-                    pass
-            # Response was either sufficient or the bot handled as much it could, bid farewells and leave the chat conversation
-            self.bot.send_farewell_messages(chat_id=chat_id)
-            self.bot.leave_chat_conversation(chat_id=chat_id)
+        response_value = self.resource['response_value']
+
+        if self.resource['type'] != 'action':
+            self.bot.handle_visitor_message(chat_id)
+        elif response_value == 'request_human':
+            self.bot.react_to_request_human(chat_id)
+        elif response_value == 'positive_feedback':
+            self.bot.react_to_positive_feedback(chat_id)
+        elif response_value == 'negative_feedback':
+            self.bot.react_to_negative_feedback(chat_id)
+        elif response_value == "https://www.giosg.com/support/user":
+            self.bot.react_to_customer_service_agent(chat_id)
+        elif response_value == "https://www.giosg.com/support/manager":
+            self.bot.react_to_manager_user(chat_id)
+        elif response_value == "https://www.giosg.com/support/developer":
+            self.bot.react_to_developer(chat_id)
 
         return {'detail': 'OK'}
