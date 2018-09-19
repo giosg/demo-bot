@@ -45,17 +45,19 @@ class ChatBot(object):
         /api/v5/users/{user_id}/chats/*/messages
         """
         chat_id = message['chat_id']
+        message_type = message['type']
+        sender_type = message['sender_type']
+        response_value = message['response_value']
 
         # Only react to messages from a visitor, not from this bot or users
-        if message['sender_type'] == 'user':
+        # Also, ignore all other message types actual messages ('msg') and actions ('action')
+        if sender_type == 'user' or message_type not in ('msg', 'action'):
             return
 
         self.make_present()
 
-        response_value = message['response_value']
-
-        if message['type'] != 'action':
-            self.handle_visitor_message(chat_id)
+        if message['type'] == 'msg':
+            self.react_to_visitor_message(chat_id)
         elif response_value == 'request_human':
             self.react_to_request_human(chat_id)
         elif response_value == 'positive_feedback':
@@ -134,7 +136,7 @@ class ChatBot(object):
                         "value": "https://www.giosg.com/support/user",
                         "style": "brand_primary",
                         "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
+                        "is_disabled_on_visitor_message": True
                     }, {
                         "text": "Manager user",
                         "type": "link_button",
@@ -142,7 +144,7 @@ class ChatBot(object):
                         "value": "https://www.giosg.com/support/manager",
                         "style": "brand_primary",
                         "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
+                        "is_disabled_on_visitor_message": True
                     }, {
                         "text": "Developer",
                         "type": "link_button",
@@ -150,17 +152,24 @@ class ChatBot(object):
                         "value": "https://www.giosg.com/support/developer",
                         "style": "brand_primary",
                         "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
+                        "is_disabled_on_visitor_message": True
                     }, {
                         "text": "Let me chat with a human",
                         "type": "button",
                         "value": "request_human",
                         "style": "brand_secondary",
                         "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
+                        "is_disabled_on_visitor_message": True
                     }]
                 }],
             },
+        )
+
+    def react_to_visitor_message(self, chat_id):
+        self.send_option_links(
+            chat_id,
+            "I apologize, I'm just a simple example bot uncapable of understanding human language! 😅",
+            "I only know what to do if you choose one of the options below!"
         )
 
     def react_to_customer_service_agent(self, chat_id):
@@ -262,9 +271,6 @@ class ChatBot(object):
             },
         )
         self.leave_chat_conversation(chat_id)
-
-    def handle_visitor_message(self, chat_id):
-        pass
 
     def leave_chat_conversation(self, chat_id):
         # Switches the chat membership to non-participating state
