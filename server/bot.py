@@ -17,9 +17,19 @@ class ChatBot(object):
         self.api = APIClient(auth)
         self.auth = auth
 
+    ######################################
+    # Handlers for webhook notifications #
+    ######################################
+
     def handle_new_routed_chat(self, chat):
-        self.update_or_create_user_client()
-        self.join_to_chat(chat['id'])
+        """
+        Handles a new chat that has been routed to the bot.
+        This is called when receiving a webhook notification about a new routed chat:
+
+        /api/v5/users/{user_id}/routed_chats
+        """
+        self.make_present()
+        self.join_chat(chat['id'])
         self.send_option_links(
             chat['id'],
             "I'm a simple example chatbot! How may I help you?",
@@ -27,13 +37,20 @@ class ChatBot(object):
         )
 
     def handle_new_user_chat_message(self, message):
+        """
+        Handles a new chat message that has been added to any of the chats
+        to which the user has been routed. This is called when receiving a webhook
+        notification about a new chat message:
+
+        /api/v5/users/{user_id}/chats/*/messages
+        """
         chat_id = message['chat_id']
 
         # Only react to messages from a visitor, not from this bot or users
         if message['sender_type'] == 'user':
             return
 
-        self.update_or_create_user_client()
+        self.make_present()
 
         response_value = message['response_value']
 
@@ -52,10 +69,19 @@ class ChatBot(object):
         elif response_value == "https://www.giosg.com/support/developer":
             self.react_to_developer(chat_id)
 
-    def update_or_create_user_client(self):
-        # Get existing user client if one
+    #######################################################
+    # Internal helper functions for the bot functionality #
+    #######################################################
+
+    def make_present(self):
+        """
+        Ensures that the bot user is in "present" state in the Giosg system
+        for the next two (2) hours.
+        """
+        # List all the user clients for this bot
         user_clients = self.api.list('/api/v5/users/{user_id}/clients'.format(**self.auth))
         if user_clients:
+            # If there is an existing user client, then update it
             client_id = user_clients[0]['id']
             self.api.update(
                 url='/api/v5/users/{user_id}/clients/{client_id}'.format(client_id=client_id, **self.auth),
@@ -64,6 +90,7 @@ class ChatBot(object):
                 },
             )
         else:
+            # There is no existing user client yet, so create a new
             self.api.create(
                 url='/api/v5/users/{user_id}/clients'.format(**self.auth),
                 payload={
@@ -77,7 +104,11 @@ class ChatBot(object):
         )
         return chat['present_user_participant_count'] == 0
 
-    def join_to_chat(self, chat_id):
+    def join_chat(self, chat_id):
+        """
+        Ensures that the bot user is a member of the given chat and participating in it,
+        so that it can send chat messages to it.
+        """
         self.api.create(
             url='/api/v5/users/{user_id}/routed_chats/{chat_id}/memberships'.format(chat_id=chat_id, **self.auth),
             payload={
@@ -87,6 +118,9 @@ class ChatBot(object):
         )
 
     def send_option_links(self, chat_id, message, help_text):
+        """
+        Sends a message with a set of buttons that the visitor can click in the chat window.
+        """
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
@@ -151,6 +185,7 @@ class ChatBot(object):
         )
 
     def react_to_request_human(self, chat_id):
+        # Find the team by the configured name (case-insensitive) if there is one currently online
         online_team = self.api.search(
             '/api/v5/orgs/{organization_id}/teams'.format(**self.auth),
             lambda team: team['is_online'] and team['name'].lower() == INVITEE_TEAM_NAME.lower()
@@ -162,6 +197,7 @@ class ChatBot(object):
                     "message": "Cool! I'll invite my fellow human co-worker to this chat!",
                 },
             )
+            # Invite the team to this chat
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/outgoing_chat_invitations'.format(chat_id=chat_id, **self.auth),
                 payload={
@@ -198,7 +234,7 @@ class ChatBot(object):
                 },
             )
         else:
-            # Did not find an online team to invite to this chat
+            # Did not find an online team to invite to this chat => apologize the visitor
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
@@ -231,6 +267,7 @@ class ChatBot(object):
         pass
 
     def leave_chat_conversation(self, chat_id):
+        # Switches the chat membership to non-participating state
         self.api.update(
             url='/api/v5/users/{user_id}/chat_memberships/{chat_id}'.format(chat_id=chat_id, **self.auth),
             payload={
