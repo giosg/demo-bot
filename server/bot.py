@@ -3,6 +3,10 @@ from conf import INVITEE_TEAM_NAME
 from giosg import APIClient
 
 
+# How long the bot should keep themselves "present" in Giosg system during inactivity
+BOT_PRSENECE_DURATION = 7200  # = 2 hours
+
+
 class ChatBot(object):
     """
     Bot implementation which contains all functionality e.g.
@@ -20,14 +24,14 @@ class ChatBot(object):
             self.api.update(
                 url='/api/v5/users/{user_id}/clients/{client_id}'.format(client_id=client_id, **self.auth),
                 payload={
-                    'presence_expires_in': 60,
+                    'presence_expires_in': BOT_PRSENECE_DURATION,
                 },
             )
         else:
             self.api.create(
                 url='/api/v5/users/{user_id}/clients'.format(**self.auth),
                 payload={
-                    'presence_expires_in': 60,
+                    'presence_expires_in': BOT_PRSENECE_DURATION,
                 },
             )
 
