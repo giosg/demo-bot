@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from server.bot import ChatBot
-import responses
+from responses import RequestsMock
 import unittest
 import json
+
+responses = RequestsMock(assert_all_requests_are_fired=True)
 
 
 class BotTest(unittest.TestCase):
@@ -12,6 +14,7 @@ class BotTest(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
+        responses.reset()
         self.bot = ChatBot({
             'access_token': '<ACCESS_TOKEN>',
             'token_type': 'Bearer',
@@ -102,7 +105,6 @@ class BotTest(unittest.TestCase):
     def test_handle_new_visitor_chat_message(self):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
@@ -160,7 +162,6 @@ class BotTest(unittest.TestCase):
     def test_handle_visitor_clicks_on_customer_service_agent_link(self):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
@@ -218,7 +219,6 @@ class BotTest(unittest.TestCase):
     def test_handle_visitor_clicks_on_manager_user_link(self):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
@@ -276,7 +276,6 @@ class BotTest(unittest.TestCase):
     def test_handle_visitor_clicks_on_developer_link(self):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
