@@ -29,12 +29,14 @@ class ChatBot(object):
         /api/v5/users/{user_id}/routed_chats
         """
         self.make_present()
-        self.join_chat(chat['id'])
-        self.send_option_links(
-            chat['id'],
-            "I'm a simple example chatbot! How may I help you?",
-            "Please choose your role below:",
-        )
+        chat_id = chat['id']
+        if self.is_allowed_to_join(chat_id):
+            self.join_chat(chat_id)
+            self.send_option_links(
+                chat_id,
+                "I'm a simple example chatbot! How may I help you?",
+                "Please choose your role below:",
+            )
 
     def handle_new_user_chat_message(self, message):
         """

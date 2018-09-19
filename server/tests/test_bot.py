@@ -29,19 +29,25 @@ class BotTest(unittest.TestCase):
             'next': None,
         })
         responses.add(responses.PATCH, 'https://service.giosg.com/api/v5/users/user1/clients/client1')
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1', json={
+            'present_user_participant_count': 0,
+        })
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
-        self.bot.handle_new_routed_chat({
-            'id': 'chat1',
-        })
-        req1, req2, req3, req4 = responses.calls
+        self.bot.handle_new_routed_chat({'id': 'chat1'})
+        req1, req2, req3, req4, req5 = responses.calls
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+
         self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients/client1')
         self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
-        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
-        self.assertEqual(json.loads(req3.request.body), {"is_participating": True, "composing_status": "idle"})
-        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
-        self.assertEqual(json.loads(req4.request.body), {
+
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1')
+
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        self.assertEqual(json.loads(req4.request.body), {"is_participating": True, "composing_status": "idle"})
+
+        self.assertEqual(req5.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req5.request.body), {
             "message": "I'm a simple example chatbot! How may I help you?",
             "attachments": [{
                 "text": "Please choose your role below:",
@@ -82,24 +88,44 @@ class BotTest(unittest.TestCase):
 
     @responses.activate
     def test_handle_new_routed_chat_without_existing_client(self):
-        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={
-            'results': [],
-            'next': None,
-        })
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1', json={
+            'present_user_participant_count': 0,
+        })
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
-        self.bot.handle_new_routed_chat({
-            'id': 'chat1',
-        })
-        req1, req2, req3, req4 = responses.calls
+        self.bot.handle_new_routed_chat({'id': 'chat1'})
+        req1, req2, req3, req4, req5 = responses.calls
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+
         self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
         self.assertEqual(req2.request.method, 'POST')
         self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
-        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
-        self.assertEqual(json.loads(req3.request.body), {"is_participating": True, "composing_status": "idle"})
-        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1')
+
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        self.assertEqual(json.loads(req4.request.body), {"is_participating": True, "composing_status": "idle"})
+
+        self.assertEqual(req5.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+
+    @responses.activate
+    def test_handle_new_routed_chat_with_present_user_participants(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1', json={
+            'present_user_participant_count': 1,
+        })
+        self.bot.handle_new_routed_chat({'id': 'chat1'})
+        req1, req2, req3 = responses.calls
+        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+
+        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.method, 'POST')
+        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
+
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1')
 
     @responses.activate
     def test_handle_new_visitor_chat_message(self):
