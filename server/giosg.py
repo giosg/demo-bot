@@ -24,7 +24,7 @@ class APIClient:
             'Authorization': '{token_type} {access_token}'.format(**self.auth),
         })
         response.raise_for_status()
-        return response.json()
+        return response.json() if response.text else None
 
     def update(self, url, payload):
         session = retry_session(2)
@@ -32,7 +32,7 @@ class APIClient:
             'Authorization': '{token_type} {access_token}'.format(**self.auth),
         })
         response.raise_for_status()
-        return response.json()
+        return response.json() if response.text else None
 
     def destroy(self, url):
         session = retry_session(2)
@@ -40,7 +40,7 @@ class APIClient:
             'Authorization': '{token_type} {access_token}'.format(**self.auth),
         })
         response.raise_for_status()
-        return response.json()
+        return response.json() if response.text else None
 
     def search(self, url, checker):
         for result in self.iterate(url):
