@@ -29,18 +29,6 @@ To ensure that you have the latest PIP requirements installed:
 
     pip install -r requirements.txt
 
-### Install a giosg app
-
-You need to define a webhook for the following channel:
-
-    /api/v5/orgs/{organization_id}/owned_chats/*/messages
-
-Any *additions* to this channel should be notified to the following URL:
-
-    http://localhost:5000/chat_messages?secret=bEsTsEcReT
-
-The `secret` should be replaced with your custom random secret string.
-
 ### Set up environment variables
 
 Add the correct information to your environment variables required by the bot.
@@ -50,9 +38,22 @@ Add the correct information to your environment variables required by the bot.
 ``` bash
 # REQUIRED: A shared secret that the chatbot requires to be provided as the `secret` parameter in webhook requests
 export SECRET_STRING="bEsTsEcReT"
-# OPTIONAL: Name of the team which bot will invite (if online). Defaults to "Customer service"
+# OPTIONAL: Name of the team which bot will invite to the chats, if online. Defaults to "Customer service"
 export INVITEE_TEAM_NAME="Chat agents"
 ```
+
+### Set up webhooks
+
+The chatbot will react to the events in the giosg system.
+It needs to be notified by **HTTP webhooks** whenever there are new chats or chat messages.
+For this purpose, you need to configure the following webhooks, [as described in the documentation](http://developers.giosg.com/giosg_apps.html#webhooks)
+
+Endpoint URL                                                 | Channel pattern                            | What to subscribe
+-------------------------------------------------------------|--------------------------------------------|--------------------------
+`http://your-chatbot-host.com/chats?secret=<YOUR_SECRET>`    | `/api/v5/users/{user_id}/routed_chats`     | additions only
+`http://your-chatbot-host.com/messages?secret=<YOUR_SECRET>` | `/api/v5/users/{user_id}/chats/*/messages` | additions only
+
+The `your-chatbot-host.com` needs to be replaced with the domain where your chatbot is hosted. The `<YOUR_SECRET>` needs to be replaced with your custom random secret string you used in `SECRET_STRING` environment variable.
 
 ## Running dev environment
 
