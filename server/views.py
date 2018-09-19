@@ -30,7 +30,7 @@ class APIView(Resource):
 
         # If resource, resource_id, or authentication
         # data is missing we can't continue
-        if not (self.resource or self.authentication or self.resource_id):
+        if not (self.resource and self.authentication and self.resource_id):
             abort(400)
 
         # Format the data and get needed resources

@@ -5,8 +5,11 @@ import views
 app = Flask(__name__)
 api = Api(app)
 
+# Add environmental variable
+
+
 # Add urls
-api.add_resource(views.ChatMessageAPIView, '/', '/chat_messages')
+api.add_resource(views.ChatMessageAPIView, '/', '/messages')
 api.add_resource(views.ChatAPIView, '/', '/chats')
 
 if __name__ == '__main__':

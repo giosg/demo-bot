@@ -1,3 +1,4 @@
 Lib
 include
 *.pyc
+.pytest_cache
