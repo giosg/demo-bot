@@ -55,6 +55,14 @@ Endpoint URL                                                 | Channel pattern  
 
 The `your-chatbot-host.com` needs to be replaced with the domain where your chatbot is hosted. The `<YOUR_SECRET>` needs to be replaced with your custom random secret string you used in `SECRET_STRING` environment variable.
 
+## Running tests
+
+After installing the dependencies, you can run the tests locally:
+
+```bash
+pytest
+```
+
 ## Running dev environment
 
 ### Native
