@@ -1,12 +1,18 @@
-# Hogwarts Bot & Rich Chat Message Demo
+# Demo chatbot for giosg platform
 
-This is a demo provided by Hogwarts to show what you can achieve with bots and rich chat messages. This is done via using Giosg's HTTP APIs with Flask server.
+This is a simple example chatbot that works on the [giosg.com](https://www.giosg.com) platform.
+It works with giosg's webhook notifications and HTTP APIs, and runs as a [Flask server](http://flask.pocoo.org/).
+
+Please **read the following documentation** so that you understand the basic principles of how chatbots work on giosg platform as "apps":
+
+- [giosg APPS documentation](http://developers.giosg.com/giosg_apps.html)
+- [giosg chatbot guide](http://developers.giosg.com/guides.html#chat-bot-guide)
 
 ## Setting up local dev environment
 
 ### Clone the repository
 
-    git clone git@github.com:giosg/demo-bot.git
+    git clone https://github.com/giosg/demo-bot.git
 
 ### Install requirements
 
@@ -25,7 +31,6 @@ To ensure that you have the latest PIP requirements installed:
 
 ### Install a giosg app
 
-Check the guide for setting up a *giosg APP* for the Chat Bot.
 You need to define a webhook for the following channel:
 
     /api/v5/orgs/{organization_id}/owned_chats/*/messages
