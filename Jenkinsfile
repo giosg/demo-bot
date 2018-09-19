@@ -15,8 +15,9 @@ node {
 
         stage 'Test'
         customImage.inside {
-            sh "export SECRET_STRING='bEsTsEcReT'"
-            sh "python -m unittest discover"
+            withEnv(['SECRET_STRING=bEsTsEcReT']) {
+                sh "python -m unittest discover"
+            }
         }
     // Otherwise build image when a pull request is merged to master
     } else {
