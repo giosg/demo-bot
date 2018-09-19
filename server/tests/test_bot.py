@@ -157,6 +157,180 @@ class BotTest(unittest.TestCase):
         })
 
     @responses.activate
+    def test_handle_visitor_clicks_on_customer_service_agent_link(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'action',
+            'sender_type': 'visitor',
+            'response_value': "https://www.giosg.com/support/user",
+        })
+        req1, req2, req3 = responses.calls
+        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.method, 'POST')
+        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req3.request.body), {
+            "message": "From this page you can find information that customer service agents would like helpful!",
+            "attachments": [{
+                "text": "Any other topic in which I could help you?",
+                "actions": [{
+                    "text": "Customer service agent",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/user",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Manager user",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/manager",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Developer",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/developer",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Let me chat with a human",
+                    "type": "button",
+                    "value": "request_human",
+                    "style": "brand_secondary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }]
+            }],
+        })
+
+    @responses.activate
+    def test_handle_visitor_clicks_on_manager_user_link(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'action',
+            'sender_type': 'visitor',
+            'response_value': "https://www.giosg.com/support/manager",
+        })
+        req1, req2, req3 = responses.calls
+        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.method, 'POST')
+        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req3.request.body), {
+            "message": "From this page you can find information helpful for manager users!",
+            "attachments": [{
+                "text": "Any other topic in which I could help you?",
+                "actions": [{
+                    "text": "Customer service agent",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/user",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Manager user",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/manager",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Developer",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/developer",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Let me chat with a human",
+                    "type": "button",
+                    "value": "request_human",
+                    "style": "brand_secondary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }]
+            }],
+        })
+
+    @responses.activate
+    def test_handle_visitor_clicks_on_developer_link(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'action',
+            'sender_type': 'visitor',
+            'response_value': "https://www.giosg.com/support/developer",
+        })
+        req1, req2, req3 = responses.calls
+        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.method, 'POST')
+        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req3.request.body), {
+            "message": "Oh, you are a developer! I'm also been created by a developer! Here's some nerdy information for you!",
+            "attachments": [{
+                "text": "Any other topic in which I could help you?",
+                "actions": [{
+                    "text": "Customer service agent",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/user",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Manager user",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/manager",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Developer",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/developer",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Let me chat with a human",
+                    "type": "button",
+                    "value": "request_human",
+                    "style": "brand_secondary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }]
+            }],
+        })
+
+    @responses.activate
     def test_ignore_new_join_chat_messages(self):
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
