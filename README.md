@@ -70,7 +70,7 @@ Then use the printed hostname as `https://your-chatbot-host.com` in the webhook 
 After installing the dependencies, you can run the tests locally:
 
 ```bash
-pytest
+python -m unittest discover
 ```
 
 ## Running dev environment
