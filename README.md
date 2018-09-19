@@ -1,12 +1,18 @@
-# Hogwarts Bot & Rich Chat Message Demo
+# Demo chatbot for giosg platform
 
-This is a demo provided by Hogwarts to show what you can achieve with bots and rich chat messages. This is done via using Giosg's HTTP APIs with Flask server.
+This is a simple example chatbot that works on the [giosg.com](https://www.giosg.com) platform.
+It works with giosg's webhook notifications and HTTP APIs, and runs as a [Flask server](http://flask.pocoo.org/).
+
+Please **read the following documentation** so that you understand the basic principles of how chatbots work on giosg platform as "apps":
+
+- [giosg APPS documentation](http://developers.giosg.com/giosg_apps.html)
+- [giosg chatbot guide](http://developers.giosg.com/guides.html#chat-bot-guide)
 
 ## Setting up local dev environment
 
 ### Clone the repository
 
-    git clone git@github.com:giosg/demo-bot.git
+    git clone https://github.com/giosg/demo-bot.git
 
 ### Install requirements
 
@@ -25,7 +31,6 @@ To ensure that you have the latest PIP requirements installed:
 
 ### Install a giosg app
 
-Check the guide for setting up a *giosg APP* for the Chat Bot.
 You need to define a webhook for the following channel:
 
     /api/v5/orgs/{organization_id}/owned_chats/*/messages
@@ -43,24 +48,24 @@ Add the correct information to your environment variables required by the bot.
 **TIP:** You can add these lines to the virtualenv postactive hook file (`$VIRTUAL_ENV/bin/postactivate`), so that they are automatically applied whenever you `workon` on your virtualenv!
 
 ``` bash
-export BOT_USER_ID="195fd907-36cd-11e6-9682-f45c89c72de3"
-export BOT_USER_API_TOKEN="778c42087ae51f112bcedf500385113090d96e2f"
-export BOT_USER_ORGANIZATION_ID="398b5138-3224-11e6-987e-f45c89c72de3"
-export SERVICE_URL="http://localhost:8000"
-export ALLOWED_ROOM_ID="e56bf487-3398-11e6-a41a-f45c89c72de3"
+# REQUIRED: A shared secret that the chatbot requires to be provided as the `secret` parameter in webhook requests
 export SECRET_STRING="bEsTsEcReT"
-export FLASK_APP="server/server.py"
+# OPTIONAL: Name of the team which bot will invite (if online). Defaults to "Customer service"
+export INVITEE_TEAM_NAME="Chat agents"
 ```
 
 ## Running dev environment
 
-Our Flask application runs locally in `localhost:5000`
-
 ### Native
+
+Our Flask application runs locally in `localhost:5000`
 
 Run the server
 
-    flask run
+```bash
+export FLASK_APP="server/server.py"
+flask run
+```
 
 ### Docker
 
