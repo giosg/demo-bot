@@ -48,12 +48,22 @@ The chatbot will react to the events in the giosg system.
 It needs to be notified by **HTTP webhooks** whenever there are new chats or chat messages.
 For this purpose, you need to configure the following webhooks, [as described in the documentation](http://developers.giosg.com/giosg_apps.html#webhooks)
 
-Endpoint URL                                                 | Channel pattern                            | What to subscribe
--------------------------------------------------------------|--------------------------------------------|--------------------------
-`http://your-chatbot-host.com/chats?secret=<YOUR_SECRET>`    | `/api/v5/users/{user_id}/routed_chats`     | additions only
-`http://your-chatbot-host.com/messages?secret=<YOUR_SECRET>` | `/api/v5/users/{user_id}/chats/*/messages` | additions only
+Endpoint URL                                                  | Channel pattern                            | What to subscribe
+--------------------------------------------------------------|--------------------------------------------|--------------------------
+`https://your-chatbot-host.com/chats?secret=<YOUR_SECRET>`    | `/api/v5/users/{user_id}/routed_chats`     | additions only
+`https://your-chatbot-host.com/messages?secret=<YOUR_SECRET>` | `/api/v5/users/{user_id}/chats/*/messages` | additions only
 
-The `your-chatbot-host.com` needs to be replaced with the domain where your chatbot is hosted. The `<YOUR_SECRET>` needs to be replaced with your custom random secret string you used in `SECRET_STRING` environment variable.
+The `<YOUR_SECRET>` needs to be replaced with your custom random secret string you used in `SECRET_STRING` environment variable.
+The `your-chatbot-host.com` needs to be replaced with the domain where your chatbot is hosted.
+
+**For local development** using `localhost` won't of course work, as giosg servers cannot reach your local environment.
+Instead, you can use a tunneling service, such as [ngrok](https://ngrok.com/). After [launching your local server](#running-dev-environment), tunnel your traffic with this command:
+
+```bash
+./ngrok http 5000
+```
+
+Then use the printed hostname as `https://your-chatbot-host.com` in the webhook configurations, e.g. `https://a6ea052f.ngrok.io`.
 
 ## Running tests
 
@@ -67,13 +77,13 @@ pytest
 
 ### Native
 
-Our Flask application runs locally in `localhost:5000`
-
-Run the server
+The Flask application runs locally in `localhost:5000`.
+Run the server with the following command.
+Use the host `0.0.0.0` if you are using a tunnel such as [ngrok](https://ngrok.com/).
 
 ```bash
 export FLASK_APP="server/server.py"
-flask run
+flask run --host=0.0.0.0
 ```
 
 ### Docker
