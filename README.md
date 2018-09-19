@@ -43,24 +43,24 @@ Add the correct information to your environment variables required by the bot.
 **TIP:** You can add these lines to the virtualenv postactive hook file (`$VIRTUAL_ENV/bin/postactivate`), so that they are automatically applied whenever you `workon` on your virtualenv!
 
 ``` bash
-export BOT_USER_ID="195fd907-36cd-11e6-9682-f45c89c72de3"
-export BOT_USER_API_TOKEN="778c42087ae51f112bcedf500385113090d96e2f"
-export BOT_USER_ORGANIZATION_ID="398b5138-3224-11e6-987e-f45c89c72de3"
-export SERVICE_URL="http://localhost:8000"
-export ALLOWED_ROOM_ID="e56bf487-3398-11e6-a41a-f45c89c72de3"
+# REQUIRED: A shared secret that the chatbot requires to be provided as the `secret` parameter in webhook requests
 export SECRET_STRING="bEsTsEcReT"
-export FLASK_APP="server/server.py"
+# OPTIONAL: Name of the team which bot will invite (if online). Defaults to "Customer service"
+export INVITEE_TEAM_NAME="Chat agents"
 ```
 
 ## Running dev environment
 
-Our Flask application runs locally in `localhost:5000`
-
 ### Native
+
+Our Flask application runs locally in `localhost:5000`
 
 Run the server
 
-    flask run
+```bash
+export FLASK_APP="server/server.py"
+flask run
+```
 
 ### Docker
 
