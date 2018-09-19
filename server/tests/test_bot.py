@@ -155,3 +155,25 @@ class BotTest(unittest.TestCase):
                 }]
             }],
         })
+
+    @responses.activate
+    def test_ignore_new_join_chat_messages(self):
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'join',
+            'sender_type': 'visitor',
+            'response_value': None,
+        })
+        self.assertEqual(list(responses.calls), [])
+
+    @responses.activate
+    def test_ignore_new_leave_chat_messages(self):
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'leave',
+            'sender_type': 'visitor',
+            'response_value': None,
+        })
+        self.assertEqual(list(responses.calls), [])
