@@ -396,6 +396,42 @@ class BotTest(unittest.TestCase):
             }],
         })
 
+    @responses.activate
+    def test_handle_visitor_requests_human_with_offline_team(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/orgs/org1/teams', json={
+            'results': [{
+                'id': 'team1',
+                'name': "Customer service",
+                'is_online': False,
+            }],
+            'next': None,
+        })
+        self.bot.handle_new_user_chat_message({
+            'id': 'message1',
+            'chat_id': 'chat1',
+            'type': 'action',
+            'sender_type': 'visitor',
+            'response_value': "request_human",
+        })
+        req1, req2, req3, req4 = responses.calls
+        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+
+        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
+        self.assertEqual(req2.request.method, 'POST')
+        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
+
+        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/orgs/org1/teams')
+
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req4.request.body), {
+            "message": "Oh, sorry but could not find online customer service agents! They might have just left for a cup of coffee or something!",
+            "attachments": [{
+                "text": "You can also contact us by email: [support@giosg.com](mailto:support@giosg.com)",
+            }],
+        })
 
     @responses.activate
     def test_ignore_new_join_chat_messages(self):
