@@ -43,9 +43,6 @@ class APIView(Resource):
         # Initialize chat bot
         self.bot = ChatBot(self.authentication)
 
-        # Update bot's user client or create new user client if none found
-        self.bot.update_or_create_user_client()
-
 
 class ChatAPIView(APIView):
     """
@@ -55,18 +52,7 @@ class ChatAPIView(APIView):
     """
     def post(self):
         super(ChatAPIView, self).post()
-
-        # When a new chat is routed to the
-        # bot, do following steps:
-        # 1. There are already some other user participating the chat
-        # 2. If not, join to the chat and send the welcoming message
-        # allowed_to_join = self.bot.is_allowed_to_join(chat_id=self.resource_id)
-        allowed_to_join = True
-
-        # Bot was allowed to join to the chat
-        if allowed_to_join:
-            self.bot.join_to_chat(chat_id=self.resource_id)
-            self.bot.send_welcoming_message(chat_id=self.resource_id)
+        self.bot.handle_new_routed_chat(self.resource)
         return {'detail': 'OK'}
 
 
@@ -78,27 +64,5 @@ class ChatMessageAPIView(APIView):
     """
     def post(self):
         super(ChatMessageAPIView, self).post()
-        chat_id = self.resource['chat_id']
-
-        # Only react to messages from a visitor, not from this bot or users
-        if self.resource['sender_type'] == 'user':
-            return
-
-        response_value = self.resource['response_value']
-
-        if self.resource['type'] != 'action':
-            self.bot.handle_visitor_message(chat_id)
-        elif response_value == 'request_human':
-            self.bot.react_to_request_human(chat_id)
-        elif response_value == 'positive_feedback':
-            self.bot.react_to_positive_feedback(chat_id)
-        elif response_value == 'negative_feedback':
-            self.bot.react_to_negative_feedback(chat_id)
-        elif response_value == "https://www.giosg.com/support/user":
-            self.bot.react_to_customer_service_agent(chat_id)
-        elif response_value == "https://www.giosg.com/support/manager":
-            self.bot.react_to_manager_user(chat_id)
-        elif response_value == "https://www.giosg.com/support/developer":
-            self.bot.react_to_developer(chat_id)
-
+        self.bot.handle_new_user_chat_message(self.resource)
         return {'detail': 'OK'}

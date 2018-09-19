@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from conf import INVITEE_TEAM_NAME
 from giosg import APIClient
 
@@ -15,6 +16,41 @@ class ChatBot(object):
     def __init__(self, auth):
         self.api = APIClient(auth)
         self.auth = auth
+
+    def handle_new_routed_chat(self, chat):
+        self.update_or_create_user_client()
+        self.join_to_chat(chat['id'])
+        self.send_option_links(
+            chat['id'],
+            "I'm a simple example chatbot! How may I help you?",
+            "Please choose your role below:",
+        )
+
+    def handle_new_user_chat_message(self, message):
+        chat_id = message['chat_id']
+
+        # Only react to messages from a visitor, not from this bot or users
+        if message['sender_type'] == 'user':
+            return
+
+        self.update_or_create_user_client()
+
+        response_value = message['response_value']
+
+        if message['type'] != 'action':
+            self.handle_visitor_message(chat_id)
+        elif response_value == 'request_human':
+            self.react_to_request_human(chat_id)
+        elif response_value == 'positive_feedback':
+            self.react_to_positive_feedback(chat_id)
+        elif response_value == 'negative_feedback':
+            self.react_to_negative_feedback(chat_id)
+        elif response_value == "https://www.giosg.com/support/user":
+            self.react_to_customer_service_agent(chat_id)
+        elif response_value == "https://www.giosg.com/support/manager":
+            self.react_to_manager_user(chat_id)
+        elif response_value == "https://www.giosg.com/support/developer":
+            self.react_to_developer(chat_id)
 
     def update_or_create_user_client(self):
         # Get existing user client if one
@@ -50,16 +86,13 @@ class ChatBot(object):
             },
         )
 
-    def send_welcoming_message(self, chat_id):
-        """
-        Format welcoming message and makes API request
-        """
+    def send_option_links(self, chat_id, message, help_text):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": "Welcome to giosg's support side,",
+                "message": message,
                 "attachments": [{
-                    "text": "are you:",
+                    "text": help_text,
                     "actions": [{
                         "text": "Customer service agent",
                         "type": "link_button",
@@ -82,6 +115,13 @@ class ChatBot(object):
                         "link_target": "_parent",
                         "value": "https://www.giosg.com/support/developer",
                         "style": "brand_primary",
+                        "is_disabled_on_selection": True,
+                        "is_disabled_on_visitor_message": False
+                    }, {
+                        "text": "Let me chat with a human",
+                        "type": "button",
+                        "value": "request_human",
+                        "style": "brand_secondary",
                         "is_disabled_on_selection": True,
                         "is_disabled_on_visitor_message": False
                     }]
@@ -90,108 +130,24 @@ class ChatBot(object):
         )
 
     def react_to_customer_service_agent(self, chat_id):
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "message": "Here's some information for customer service agents!",
-                "attachments": [{
-                    "text": "Any other topic in which I could help you?",
-                    "actions": [{
-                        "text": "Manager user",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/manager",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Developer",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/developer",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Let me chat with a human",
-                        "type": "button",
-                        "value": "request_human",
-                        "style": "brand_secondary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }]
-                }],
-            },
+        self.send_option_links(
+            chat_id,
+            "From this page you can find information that customer service agents would like helpful!",
+            "Any other topic in which I could help you?",
         )
 
     def react_to_manager_user(self, chat_id):
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "message": "Here's some information that is helpful for manager users!",
-                "attachments": [{
-                    "text": "Any other topic in which I could help you?",
-                    "actions": [{
-                        "text": "Customer service agent",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/user",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Developer",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/developer",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Let me chat with a human",
-                        "type": "button",
-                        "value": "request_human",
-                        "style": "brand_secondary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }]
-                }],
-            },
+        self.send_option_links(
+            chat_id,
+            "From this page you can find information helpful for manager users!",
+            "Any other topic in which I could help you?"
         )
 
     def react_to_developer(self, chat_id):
-        self.api.create(
-            url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            payload={
-                "message": "Oh, you are a developer! I'm also been created by a developer! Here's some nerdy information for you!",
-                "attachments": [{
-                    "text": "Any other topic in which I could help you?",
-                    "actions": [{
-                        "text": "Manager user",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/manager",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Customer service agent",
-                        "type": "link_button",
-                        "link_target": "_parent",
-                        "value": "https://www.giosg.com/support/user",
-                        "style": "brand_primary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }, {
-                        "text": "Let me chat with a human",
-                        "type": "button",
-                        "value": "request_human",
-                        "style": "brand_secondary",
-                        "is_disabled_on_selection": True,
-                        "is_disabled_on_visitor_message": False
-                    }]
-                }],
-            },
+        self.send_option_links(
+            chat_id,
+            "Oh, you are a developer! I'm also been created by a developer! Here's some nerdy information for you!",
+            "Any other topic in which I could help you?"
         )
 
     def react_to_request_human(self, chat_id):
@@ -201,6 +157,12 @@ class ChatBot(object):
         )
         if online_team:
             self.api.create(
+                url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
+                payload={
+                    "message": "Cool! I'll invite my fellow human co-worker to this chat!",
+                },
+            )
+            self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/outgoing_chat_invitations'.format(chat_id=chat_id, **self.auth),
                 payload={
                     "invited_team_id": online_team['id'],
@@ -209,13 +171,13 @@ class ChatBot(object):
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "OK, I invited my fellow human co-worker to this chat! They will join in a moment and I'll leave you guys!",
+                    "message": "They will join in a moment and I'll leave you guys!",
                 },
             )
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "But before I go, could you tell me if you found this information helpful?",
+                    "message": "But before I go, could you please tell me if you found this information helpful?",
                     "attachments": [{
                         "actions": [{
                             "text": "Yes",
@@ -240,9 +202,9 @@ class ChatBot(object):
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "Oh, sorry but could not find online customer service agents! They might have just left!",
+                    "message": "Oh, sorry but could not find online customer service agents! They might have just left for a cup of coffee or something!",
                     "attachments": [{
-                        "text": "Maybe you could [send them email](mailto:support@giosg.com) instead?",
+                        "text": "You can also contact us by email: [support@giosg.com](mailto:support@giosg.com)",
                     }],
                 },
             )
@@ -251,7 +213,7 @@ class ChatBot(object):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": "Good to hear that! My human fellow will continue chatting with you!",
+                "message": "Good to hear that! 😁 My human fellow will continue chatting with you!",
             },
         )
         self.leave_chat_conversation(chat_id)
@@ -260,7 +222,7 @@ class ChatBot(object):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": "Sorry to hear that! I hope that my human fellow can serve you better!",
+                "message": "I'm sorry to hear that! 😢 I hope that my human fellow can serve you better!",
             },
         )
         self.leave_chat_conversation(chat_id)
