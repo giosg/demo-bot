@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from flask import request, abort
+from flask import request, abort, render_template
 from flask_restful import Resource
 from bot import ChatBot
 from conf import SECRET_STRING
+
+
+def IndexTemplate():
+    """
+    Return simple index template.
+    """
+    return render_template('index.html')
 
 
 class APIView(Resource):
