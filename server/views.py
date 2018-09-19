@@ -23,22 +23,13 @@ class APIView(Resource):
 
         # Resource object containing all data changes
         self.resource = json_data.get('resource')
-        # Resource ID, this is either the chat ID or message ID
-        self.resource_id = json_data.get('resource_id')
         # Authentication object containing user ID and token
         self.authentication = json_data.get('app_user_auth')
 
         # If resource, resource_id, or authentication
         # data is missing we can't continue
-        if not (self.resource and self.authentication and self.resource_id):
+        if not (self.resource and self.authentication):
             abort(400)
-
-        # Format the data and get needed resources
-        # 1. user_id
-        # 2. authentication token
-        self.user_id = self.authentication.get('user_id')
-        self.organization_id = self.authentication.get('organization_id')
-        self.token = self.authentication.get('access_token')
 
         # Initialize chat bot
         self.bot = ChatBot(self.authentication)

@@ -10,6 +10,13 @@ class ChatAPIViewTest(unittest.TestCase):
         server.app.config['TESTING'] = True
         self.client = server.app.test_client()
 
+        self.authentication = {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.JsxySWmKqmsd7BTXRi3JnmkFS4kJJTU_NYUN2NcfsP8",
+            "token_type": "Bearer",
+            "expires_in": 300,
+            "user_id": "dabfd452-cbc0-4eff-aaac-f4e125db0fe4",
+            "organization_id": "7f9e9580-095b-42c7-838c-c04e667b26f7"
+        }
         self.resource = {
             "id": "e1549f4d-d2a6-4efb-b64c-e977b0a5ba96",
             "token": "uibdbtmk5etolmjaduaafnqpl2ujzkyr4slkq3cabdai37qm",
@@ -50,13 +57,7 @@ class ChatAPIViewTest(unittest.TestCase):
             "channel": "/api/v5/users/dabfd452-cbc0-4eff-aaac-f4e125db0fe4/routed_chats",
             "action": "added",
             "resource_id": "e1549f4d-d2a6-4efb-b64c-e977b0a5ba96",
-            "app_user_auth": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.JsxySWmKqmsd7BTXRi3JnmkFS4kJJTU_NYUN2NcfsP8",
-                "token_type": "Bearer",
-                "expires_in": 300,
-                "user_id": "dabfd452-cbc0-4eff-aaac-f4e125db0fe4",
-                "organization_id": "7f9e9580-095b-42c7-838c-c04e667b26f7"
-            },
+            "app_user_auth": self.authentication,
             "resource": self.resource
         }
 
@@ -70,6 +71,12 @@ class ChatAPIViewTest(unittest.TestCase):
         self.assertEqual(response._status_code, 200)
         self.assertEqual(self.mock_handle_new_routed_chat.call_count, 1)
         self.mock_handle_new_routed_chat.assert_any_call(self.resource)
+
+    @patch('server.views.ChatBot')
+    def test_chat_bot_is_initialized_with_correct_authentication(self, chat_bot_mock):
+        response = self.client.post('/messages?secret=' + SECRET_STRING, json=self.valid_data)
+        self.assertEqual(response._status_code, 200)
+        chat_bot_mock.assert_any_call(self.authentication)
 
     def test_return_405_for_get_requests(self):
         response = self.client.get('/chats')
@@ -104,12 +111,6 @@ class ChatAPIViewTest(unittest.TestCase):
 
     def test_return_400_if_authentication_is_missing_from_request(self):
         self.valid_data.pop('app_user_auth')
-        response = self.client.post('/chats?secret=' + SECRET_STRING, json=self.valid_data)
-        self.assertEqual(response._status_code, 400)
-        self.assertEqual(self.mock_handle_new_routed_chat.call_count, 0)
-
-    def test_return_400_if_resource_id_is_missing_from_request(self):
-        self.valid_data.pop('resource_id')
         response = self.client.post('/chats?secret=' + SECRET_STRING, json=self.valid_data)
         self.assertEqual(response._status_code, 400)
         self.assertEqual(self.mock_handle_new_routed_chat.call_count, 0)
