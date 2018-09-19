@@ -1,4 +1,5 @@
 from server.bot import ChatBot
+import responses
 import unittest
 
 
@@ -12,5 +13,6 @@ class BotTest(unittest.TestCase):
             'organization_id': 'org1',
         })
 
+    @responses.activate
     def test_joins_new_routed_chat(self):
         pass
