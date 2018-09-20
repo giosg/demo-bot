@@ -171,10 +171,10 @@ class ChatBot(object):
         )
 
     def react_to_visitor_message(self, chat_id):
-        # Check if visitor has already answered to feedback
+        # Check if visitor has already requested human
         has_answered = self.api.search(
             '/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
-            lambda message: message['response_value'] in ('positive_feedback', 'negative_feedback')
+            lambda message: message['response_value'] == 'request_human'
         )
         if not has_answered:
             self.send_option_links(

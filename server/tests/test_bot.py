@@ -187,29 +187,10 @@ class BotTest(unittest.TestCase):
         })
 
     @responses.activate
-    def test_handle_new_visitor_chat_message_if_visitor_has_already_answered_yes_to_feedback(self):
+    def test_handle_new_visitor_chat_message_if_visitor_has_requested_human(self):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages', json={'results': [{'response_value': 'positive_feedback'}], 'next': None})
-        self.bot.handle_new_user_chat_message({
-            'id': 'message1',
-            'chat_id': 'chat1',
-            'type': 'msg',
-            'sender_type': 'visitor',
-            'response_value': None,
-        })
-        req1, req2, req3 = responses.calls
-        self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
-        self.assertEqual(req2.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
-        self.assertEqual(req2.request.method, 'POST')
-        self.assertEqual(json.loads(req2.request.body), {"presence_expires_in": 7200})
-        self.assertEqual(req3.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
-
-    @responses.activate
-    def test_handle_new_visitor_chat_message_if_visitor_has_already_answered_no_to_feedback(self):
-        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
-        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
-        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages', json={'results': [{'response_value': 'negative_feedback'}], 'next': None})
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages', json={'results': [{'response_value': 'request_human'}], 'next': None})
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
             'chat_id': 'chat1',
