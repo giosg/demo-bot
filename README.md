@@ -8,6 +8,16 @@ Please **read the following documentation** so that you understand the basic pri
 - [giosg APPS documentation](http://developers.giosg.com/giosg_apps.html)
 - [giosg chatbot guide](http://developers.giosg.com/guides.html#chat-bot-guide)
 
+## How it works?
+
+The chatbot has the following functionality:
+
+- When a new chat is routed to the bot, it **automatically joins it and sends a message containing link buttons for different topics**
+- Whenever a link topic button is clicked, it sends another message (and offers the same buttons)
+- It also offers a **button for inviting a human to the chat**. If clicked, the bot will invite an online team to the chat if found.
+- When inviting people, the bot tries to find a team by default with the name "Customer service". This may be configured.
+- Finally, after inviting a team, the bot **asks if their help was useful or not**. It then leaves the chat.
+
 ## Setting up local dev environment
 
 ### Clone the repository
