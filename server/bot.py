@@ -172,11 +172,11 @@ class ChatBot(object):
 
     def react_to_visitor_message(self, chat_id):
         # Check if visitor has already requested human
-        has_answered = self.api.search(
+        has_requested_human = self.api.search(
             '/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             lambda message: message['response_value'] == 'request_human'
         )
-        if not has_answered:
+        if not has_requested_human:
             self.send_option_links(
                 chat_id,
                 "I apologize, I'm just a simple example bot uncapable of understanding human language! 😅",
