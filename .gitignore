@@ -1,3 +1,7 @@
 Lib
 include
 *.pyc
+
+# Include Visual Studio Code workspace settings to version control, but ignore everything else related to VSCode
+/.vscode/*
+!/.vscode/settings.json
