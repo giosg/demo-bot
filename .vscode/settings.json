@@ -1,0 +1,18 @@
+// NOTE: This Workspace settings file is shared with your co-workers
+{
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/*.pyc": true
+	},
+	"files.trimTrailingWhitespace": true,
+	"files.trimFinalNewlines": true,
+	"files.insertFinalNewline": true,
+	"search.exclude": {
+		".vscode/tags": true,
+	},
+	"python.pythonPath": "${env.HOME}/.virtualenvs/${workspaceRootFolderName}/bin/python",
+	"python.linting.pep8Enabled": false,
+	"python.linting.flake8Enabled": true,
+	"python.linting.pylintEnabled": false
+}
