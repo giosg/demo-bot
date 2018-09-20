@@ -31,7 +31,9 @@ node {
         def customImage = docker.build(env.DOCKER_IMAGE)
 
         stage 'Upload image to docker hub'
-        customImage.push()
-        customImage.push('latest')
+        docker.withRegistry('', 'docker-giosgmachine') {
+            customImage.push()
+            customImage.push('latest')
+        }
     }
 }
