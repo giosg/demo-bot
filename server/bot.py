@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Functional logic for the chatbot.
+"""
 from __future__ import unicode_literals
 from conf import INVITEE_TEAM_NAME
 from giosg import APIClient

@@ -1,3 +1,6 @@
+"""
+Main entry point for the Flask app, defining the URL routes for the views.
+"""
 from flask import Flask
 from flask_restful import Api
 import views

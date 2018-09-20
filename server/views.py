@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Views for handling the incoming HTTP requests to the app.
+"""
 from flask import request, abort, render_template
 from flask_restful import Resource
 from bot import ChatBot

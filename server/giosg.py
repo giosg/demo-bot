@@ -1,3 +1,6 @@
+"""
+Defines helper methods for making requests to giosg HTTP API endpoints.
+"""
 from conf import SERVICE_URL
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
