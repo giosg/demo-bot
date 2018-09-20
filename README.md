@@ -18,6 +18,17 @@ The chatbot has the following functionality:
 - When inviting people, the bot tries to find a team by default with the name "Customer service". This may be configured.
 - Finally, after inviting a team, the bot **asks if their help was useful or not**. It then leaves the chat.
 
+## Project structure
+
+- [`requirements.txt`](./requirements.txt) contains Python (PIP) requirements for running and developing the bot
+- [`server/conf.py`](./server/conf.py) reads the configuration for the chatbot from the environment variables
+- [`server/server.py`](./server/server.py) defines the [Flask server app](http://flask.pocoo.org/) and the URL routings
+- [`server/views.py`](./server/views.py) defines the views for handling incoming HTTP requests
+- [`server/bot.py`](./server/bot.py) defines the functional logic of the chatbot
+- [`server/giosg.py`](./server/giosg.py) defines simple utility functions for making HTTP requests to the [giosg HTTP API](http://developers.giosg.com/http_api.html)
+- [`server/tests/`](./server/tests/) contains [unit tests](#running-tests) for the app
+- [`server/templates/`](./server/templates/) contains the HTML template for the "front page" of the bot server
+
 ## Setting up local dev environment
 
 ### Clone the repository
@@ -52,7 +63,13 @@ export SECRET_STRING="bEsTsEcReT"
 export INVITEE_TEAM_NAME="Chat agents"
 ```
 
-### Set up webhooks
+### Set up the app
+
+Please follow the [giosg APPs documentation](http://developers.giosg.com/giosg_apps.html) to perform the following steps:
+
+- Create a giosg APP to your organization account, with the webhooks as described below
+- Install the app, probably to your own organization, at least while developing
+- Route chats from the desired room to the chatbot by adding the created bot user to a router
 
 The chatbot will react to the events in the giosg system.
 It needs to be notified by **HTTP webhooks** whenever there are new chats or chat messages.
