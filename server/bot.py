@@ -266,7 +266,7 @@ class ChatBot(object):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": translations['positive_feedback_response_text'],
+                "message": translations['negative_feedback_response_text'],
             },
         )
         self.leave_chat_conversation(chat_id)
