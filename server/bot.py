@@ -5,6 +5,7 @@ Functional logic for the chatbot.
 from __future__ import unicode_literals
 from conf import INVITEE_TEAM_NAME
 from giosg import APIClient
+from languages import load_translations_for_language
 
 
 # How long the bot should keep themselves "present" in Giosg system during inactivity
@@ -31,15 +32,13 @@ class ChatBot(object):
 
         /api/v5/users/{user_id}/routed_chats
         """
-        self.make_present()
         chat_id = chat['id']
+        room_id = chat['room_id']
+        translations = self.get_translations_for_room(room_id)
+        self.make_present()
         if self.is_allowed_to_join(chat_id):
             self.join_chat(chat_id)
-            self.send_option_links(
-                chat_id,
-                "I'm a simple example chatbot! How may I help you?",
-                "Please choose your role below:",
-            )
+            self.send_option_links(chat_id, 'hello_text', 'hello_hint', translations)
 
     def handle_new_user_chat_message(self, message):
         """
@@ -50,6 +49,7 @@ class ChatBot(object):
         /api/v5/users/{user_id}/chats/*/messages
         """
         chat_id = message['chat_id']
+        room_id = message['room_id']
         message_type = message['type']
         sender_type = message['sender_type']
         response_value = message['response_value']
@@ -59,22 +59,23 @@ class ChatBot(object):
         if sender_type == 'user' or message_type not in ('msg', 'action'):
             return
 
+        translations = self.get_translations_for_room(room_id)
         self.make_present()
 
         if message['type'] == 'msg':
-            self.react_to_visitor_message(chat_id)
+            self.react_to_visitor_message(chat_id, translations)
         elif response_value == 'request_human':
-            self.react_to_request_human(chat_id)
+            self.react_to_request_human(chat_id, translations)
         elif response_value == 'positive_feedback':
-            self.react_to_positive_feedback(chat_id)
+            self.react_to_positive_feedback(chat_id, translations)
         elif response_value == 'negative_feedback':
-            self.react_to_negative_feedback(chat_id)
+            self.react_to_negative_feedback(chat_id, translations)
         elif response_value == "https://www.giosg.com/support/user":
-            self.react_to_customer_service_agent(chat_id)
+            self.react_to_customer_service_agent(chat_id, translations)
         elif response_value == "https://www.giosg.com/support/manager":
-            self.react_to_manager_user(chat_id)
+            self.react_to_manager_user(chat_id, translations)
         elif response_value == "https://www.giosg.com/support/developer":
-            self.react_to_developer(chat_id)
+            self.react_to_developer(chat_id, translations)
 
     #######################################################
     # Internal helper functions for the bot functionality #
@@ -124,18 +125,18 @@ class ChatBot(object):
             },
         )
 
-    def send_option_links(self, chat_id, message, help_text):
+    def send_option_links(self, chat_id, message_key, hint_key, translations):
         """
         Sends a message with a set of buttons that the visitor can click in the chat window.
         """
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": message,
+                "message": translations[message_key],
                 "attachments": [{
-                    "text": help_text,
+                    "text": translations[hint_key],
                     "actions": [{
-                        "text": "Customer service agent",
+                        "text": translations["button_text_customer_service_agent"],
                         "type": "link_button",
                         "link_target": "_parent",
                         "value": "https://www.giosg.com/support/user",
@@ -143,7 +144,7 @@ class ChatBot(object):
                         "is_disabled_on_selection": True,
                         "is_disabled_on_visitor_message": True
                     }, {
-                        "text": "Manager user",
+                        "text": translations["button_text_manager_user"],
                         "type": "link_button",
                         "link_target": "_parent",
                         "value": "https://www.giosg.com/support/manager",
@@ -151,7 +152,7 @@ class ChatBot(object):
                         "is_disabled_on_selection": True,
                         "is_disabled_on_visitor_message": True
                     }, {
-                        "text": "Developer",
+                        "text": translations["button_text_developer"],
                         "type": "link_button",
                         "link_target": "_parent",
                         "value": "https://www.giosg.com/support/developer",
@@ -159,7 +160,7 @@ class ChatBot(object):
                         "is_disabled_on_selection": True,
                         "is_disabled_on_visitor_message": True
                     }, {
-                        "text": "Let me chat with a human",
+                        "text": translations["button_text_request_human"],
                         "type": "button",
                         "value": "request_human",
                         "style": "brand_secondary",
@@ -170,41 +171,25 @@ class ChatBot(object):
             },
         )
 
-    def react_to_visitor_message(self, chat_id):
+    def react_to_visitor_message(self, chat_id, translations):
         # Check if visitor has already requested human
         has_requested_human = self.api.search(
             '/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             lambda message: message['response_value'] == 'request_human'
         )
         if not has_requested_human:
-            self.send_option_links(
-                chat_id,
-                "I apologize, I'm just a simple example bot uncapable of understanding human language! 😅",
-                "I only know what to do if you choose one of the options below!"
-            )
+            self.send_option_links(chat_id, 'visitor_message_response_text', 'visitor_message_response_hint', translations)
 
-    def react_to_customer_service_agent(self, chat_id):
-        self.send_option_links(
-            chat_id,
-            "From this page you can find information that customer service agents would like helpful!",
-            "Any other topic in which I could help you?",
-        )
+    def react_to_customer_service_agent(self, chat_id, translations):
+        self.send_option_links(chat_id, 'customer_service_agent_message', 'customer_service_agent_hint', translations)
 
-    def react_to_manager_user(self, chat_id):
-        self.send_option_links(
-            chat_id,
-            "From this page you can find information helpful for manager users!",
-            "Any other topic in which I could help you?"
-        )
+    def react_to_manager_user(self, chat_id, translations):
+        self.send_option_links(chat_id, 'manager_user_message', 'manager_user_hint', translations)
 
-    def react_to_developer(self, chat_id):
-        self.send_option_links(
-            chat_id,
-            "Oh, you are a developer! I'm also been created by a developer! Here's some nerdy information for you!",
-            "Any other topic in which I could help you?"
-        )
+    def react_to_developer(self, chat_id, translations):
+        self.send_option_links(chat_id, 'developer_message', 'developer_hint', translations)
 
-    def react_to_request_human(self, chat_id):
+    def react_to_request_human(self, chat_id, translations):
         # Find the team by the configured name (case-insensitive) if there is one currently online
         online_team = self.api.search(
             '/api/v5/orgs/{organization_id}/teams'.format(**self.auth),
@@ -214,7 +199,7 @@ class ChatBot(object):
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "Cool! I'll invite my fellow human co-worker to this chat!",
+                    "message": translations['request_human_text'],
                 },
             )
             # Invite the team to this chat
@@ -227,23 +212,23 @@ class ChatBot(object):
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "They will join in a moment and I'll leave you guys!",
+                    "message": translations["request_human_invite_text"],
                 },
             )
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "But before I go, could you please tell me if you found this information helpful?",
+                    "message": translations['feedback_text'],
                     "attachments": [{
                         "actions": [{
-                            "text": "Yes",
+                            "text": translations['feedback_yes'],
                             "type": "button",
                             "value": "positive_feedback",
                             "style": "brand_primary",
                             "is_disabled_on_selection": True,
                             "is_disabled_on_visitor_message": False
                         }, {
-                            "text": "No",
+                            "text": translations['feedback_no'],
                             "type": "button",
                             "value": "negative_feedback",
                             "style": "brand_secondary",
@@ -258,27 +243,27 @@ class ChatBot(object):
             self.api.create(
                 url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
                 payload={
-                    "message": "Oh, sorry but could not find online customer service agents! They might have just left for a cup of coffee or something!",
+                    "message": translations['team_offline_text'],
                     "attachments": [{
-                        "text": "You can also contact us by email: [support@giosg.com](mailto:support@giosg.com)",
+                        "text": translations['team_offline_hint'],
                     }],
                 },
             )
 
-    def react_to_positive_feedback(self, chat_id):
+    def react_to_positive_feedback(self, chat_id, translations):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": "Good to hear that! 😁 My human fellow will continue chatting with you!",
+                "message": translations['positive_feedback_response_text'],
             },
         )
         self.leave_chat_conversation(chat_id)
 
-    def react_to_negative_feedback(self, chat_id):
+    def react_to_negative_feedback(self, chat_id, translations):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": "I'm sorry to hear that! 😢 I hope that my human fellow can serve you better!",
+                "message": translations['positive_feedback_response_text'],
             },
         )
         self.leave_chat_conversation(chat_id)
@@ -291,3 +276,21 @@ class ChatBot(object):
                 "is_participating": False,
             },
         )
+
+    def get_translations_for_room(self, room_id):
+        """
+        Retrieves details about the given room, and returns the translations using
+        the language code of the given room.
+        """
+        try:
+            room = self.api.retrieve('/api/v5/users/{user_id}/rooms/{room_id}'.format(room_id=room_id, **self.auth))
+            language_code = room['language_code']
+        except Exception:
+            # Could not determine the room language. Instead of failing, let's default to English
+            language_code = 'en'
+        else:
+            # If language code is not supported, then default to English
+            if language_code not in ('fi', 'en'):
+                language_code = 'en'
+        # Load translations for the given language
+        return load_translations_for_language(language_code)
