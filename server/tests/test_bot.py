@@ -583,3 +583,54 @@ class BotTest(unittest.TestCase):
                 }]
             }],
         })
+
+    @responses.activate
+    def test_support_finnish_language(self):
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/rooms/room1', json={'language_code': 'fi'})
+        responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1', json={
+            'present_user_participant_count': 0,
+        })
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.bot.handle_new_routed_chat({'id': 'chat1', 'room_id': 'room1'})
+        req = responses.calls[-1]
+        self.assertEqual(json.loads(req.request.body), {
+            "message": "Olen esimerkki-chatbotti! Kuinka voisin olla teidän avuksenne?",
+            "attachments": [{
+                "text": "Valitsisitko alta roolinne:",
+                "actions": [{
+                    "text": "Asiakaspalvelija",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/user",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Pääkäyttäjä",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/manager",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Sovelluskehittäjä",
+                    "type": "link_button",
+                    "link_target": "_parent",
+                    "value": "https://www.giosg.com/support/developer",
+                    "style": "brand_primary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }, {
+                    "text": "Ohjaa minut ihmiselle",
+                    "type": "button",
+                    "value": "request_human",
+                    "style": "brand_secondary",
+                    "is_disabled_on_selection": True,
+                    "is_disabled_on_visitor_message": True
+                }]
+            }],
+        })
