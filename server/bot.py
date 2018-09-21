@@ -3,7 +3,7 @@
 Functional logic for the chatbot.
 """
 from __future__ import unicode_literals
-from conf import INVITEE_TEAM_NAME
+from conf import INVITEE_TEAM_NAMES
 from giosg import APIClient
 from languages import load_translations_for_language
 
@@ -34,7 +34,8 @@ class ChatBot(object):
         """
         chat_id = chat['id']
         room_id = chat['room_id']
-        translations = self.get_translations_for_room(room_id)
+        language_code = self.get_language_code_for_room(room_id)
+        translations = load_translations_for_language(language_code)
         self.make_present()
         if self.is_allowed_to_join(chat_id):
             self.join_chat(chat_id)
@@ -59,13 +60,15 @@ class ChatBot(object):
         if sender_type == 'user' or message_type not in ('msg', 'action'):
             return
 
-        translations = self.get_translations_for_room(room_id)
+        language_code = self.get_language_code_for_room(room_id)
+        translations = load_translations_for_language(language_code)
+        invitee_team_name = INVITEE_TEAM_NAMES[language_code]
         self.make_present()
 
         if message['type'] == 'msg':
             self.react_to_visitor_message(chat_id, translations)
         elif response_value == 'request_human':
-            self.react_to_request_human(chat_id, translations)
+            self.react_to_request_human(chat_id, invitee_team_name, translations)
         elif response_value == 'positive_feedback':
             self.react_to_positive_feedback(chat_id, translations)
         elif response_value == 'negative_feedback':
@@ -189,11 +192,11 @@ class ChatBot(object):
     def react_to_developer(self, chat_id, translations):
         self.send_option_links(chat_id, 'developer_message', 'developer_hint', translations)
 
-    def react_to_request_human(self, chat_id, translations):
+    def react_to_request_human(self, chat_id, invitee_team_name, translations):
         # Find the team by the configured name (case-insensitive) if there is one currently online
         online_team = self.api.search(
             '/api/v5/orgs/{organization_id}/teams'.format(**self.auth),
-            lambda team: team['is_online'] and team['name'].lower() == INVITEE_TEAM_NAME.lower()
+            lambda team: team['is_online'] and team['name'].lower() == invitee_team_name.lower()
         )
         if online_team:
             self.api.create(
@@ -263,7 +266,7 @@ class ChatBot(object):
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
-                "message": translations['positive_feedback_response_text'],
+                "message": translations['negative_feedback_response_text'],
             },
         )
         self.leave_chat_conversation(chat_id)
@@ -277,10 +280,9 @@ class ChatBot(object):
             },
         )
 
-    def get_translations_for_room(self, room_id):
+    def get_language_code_for_room(self, room_id):
         """
-        Retrieves details about the given room, and returns the translations using
-        the language code of the given room.
+        Retrieves details about the given room, and returns the language code
         """
         try:
             room = self.api.retrieve('/api/v5/users/{user_id}/rooms/{room_id}'.format(room_id=room_id, **self.auth))
@@ -292,5 +294,4 @@ class ChatBot(object):
             # If language code is not supported, then default to English
             if language_code not in ('fi', 'en'):
                 language_code = 'en'
-        # Load translations for the given language
-        return load_translations_for_language(language_code)
+        return language_code
