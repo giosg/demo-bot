@@ -1,6 +1,6 @@
 import java.text.SimpleDateFormat
 
-node {
+node(label: 'docker') {
     // Test pull requests
     if (env.BRANCH_NAME != 'master') {
         stage 'Git pull'
