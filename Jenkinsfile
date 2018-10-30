@@ -1,8 +1,6 @@
 import java.text.SimpleDateFormat
 
-node {
-    agent { label 'm4-huge' }
-
+node(label: 'docker') {
     // Test pull requests
     if (env.BRANCH_NAME != 'master') {
         stage 'Git pull'
