@@ -20,6 +20,7 @@
     "team_offline_hint": "Voit myös lähettää meille sähköpostia: [support@giosg.com](mailto:support@giosg.com)",
     "visitor_message_response_text": "Anteeksi, mutta en osaa ihmisen kieltä! 😅 Olen vain yksinkertainen esimerkkibotti!",
     "visitor_message_response_hint": "Osaan vastata vain jos valitsette jonkin alla olevista vaihtoehdoista:",
+    "visitor_message_response_hint_request_human": "Vai haluaisitko että:",
     "positive_feedback_response_text": "Ihanaa! 😁 Ihmiskaverini jatkaa chattailua kanssanne!",
     "negative_feedback_response_text": "Voi harmi! 😢 Toivottavasti ihmiskaverini osaa auttaa teitä paremmin!"
 }
