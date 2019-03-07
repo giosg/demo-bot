@@ -35,8 +35,9 @@ class BotTest(unittest.TestCase):
         })
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_routed_chat({'id': 'chat1', 'room_id': 'room1'})
-        req0, req1, req2, req3, req4, req5 = responses.calls
+        req0, req1, req2, req3, req4, req5, req6 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -78,7 +79,14 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(req6.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req6.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -100,7 +108,7 @@ class BotTest(unittest.TestCase):
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_routed_chat({'id': 'chat1', 'room_id': 'room1'})
-        req0, req1, req2, req3, req4, req5 = responses.calls
+        req0, req1, req2, req3, req4, req5, req6 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -115,6 +123,7 @@ class BotTest(unittest.TestCase):
         self.assertEqual(json.loads(req4.request.body), {"is_participating": True, "composing_status": "idle"})
 
         self.assertEqual(req5.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(req6.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
 
     @responses.activate
     def test_handle_new_routed_chat_with_present_user_participants(self):
@@ -141,6 +150,7 @@ class BotTest(unittest.TestCase):
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
             'room_id': 'room1',
@@ -149,7 +159,7 @@ class BotTest(unittest.TestCase):
             'sender_type': 'visitor',
             'response_value': None,
         })
-        req0, req1, req2, req3, req4 = responses.calls
+        req0, req1, req2, req3, req4, req5 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -186,7 +196,14 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(req5.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req5.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -224,6 +241,7 @@ class BotTest(unittest.TestCase):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
             'room_id': 'room1',
@@ -232,7 +250,7 @@ class BotTest(unittest.TestCase):
             'sender_type': 'visitor',
             'response_value': "https://www.giosg.com/support/user",
         })
-        req0, req1, req2, req3 = responses.calls
+        req0, req1, req2, req3, req4 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -268,7 +286,14 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req4.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -284,6 +309,7 @@ class BotTest(unittest.TestCase):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
             'room_id': 'room1',
@@ -292,7 +318,7 @@ class BotTest(unittest.TestCase):
             'sender_type': 'visitor',
             'response_value': "https://www.giosg.com/support/manager",
         })
-        req0, req1, req2, req3 = responses.calls
+        req0, req1, req2, req3, req4 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -328,7 +354,14 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req4.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -344,6 +377,7 @@ class BotTest(unittest.TestCase):
         responses.add(responses.GET, 'https://service.giosg.com/api/v5/users/user1/clients', json={'results': [], 'next': None})
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/clients')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_user_chat_message({
             'id': 'message1',
             'room_id': 'room1',
@@ -352,7 +386,7 @@ class BotTest(unittest.TestCase):
             'sender_type': 'visitor',
             'response_value': "https://www.giosg.com/support/developer",
         })
-        req0, req1, req2, req3 = responses.calls
+        req0, req1, req2, req3, req4 = responses.calls
         self.assertEqual(req0.request.url, 'https://service.giosg.com/api/v5/users/user1/rooms/room1')
 
         self.assertEqual(req1.request.url, 'https://service.giosg.com/api/v5/users/user1/clients')
@@ -388,7 +422,14 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        self.assertEqual(json.loads(req4.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -614,9 +655,10 @@ class BotTest(unittest.TestCase):
         })
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_routed_chat({'id': 'chat1', 'room_id': 'room1'})
-        req = responses.calls[-1]
-        self.assertEqual(json.loads(req.request.body), {
+        req0, req1 = responses.calls[-2:]
+        self.assertEqual(json.loads(req0.request.body), {
             "message": "I'm a simple example chatbot! How may I help you?",
             "attachments": [{
                 "text": "Please choose your role below:",
@@ -644,7 +686,13 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(json.loads(req1.request.body), {
+            "attachments": [{
+                "text": "Or would you prefer to:",
+                "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
                     "value": "request_human",
@@ -665,9 +713,10 @@ class BotTest(unittest.TestCase):
         })
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/routed_chats/chat1/memberships')
         responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
+        responses.add(responses.POST, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.bot.handle_new_routed_chat({'id': 'chat1', 'room_id': 'room1'})
-        req = responses.calls[-1]
-        self.assertEqual(json.loads(req.request.body), {
+        req0, req1 = responses.calls[-2:]
+        self.assertEqual(json.loads(req0.request.body), {
             "message": "Olen esimerkki-chatbotti! Kuinka voisin olla teidän avuksenne?",
             "attachments": [{
                 "text": "Valitsisitko alta roolinne:",
@@ -695,7 +744,13 @@ class BotTest(unittest.TestCase):
                     "style": "brand_primary",
                     "is_disabled_on_selection": True,
                     "is_disabled_on_visitor_message": True
-                }, {
+                }]
+            }],
+        })
+        self.assertEqual(json.loads(req1.request.body), {
+            "attachments": [{
+                "text": "Vai haluaisitko että:",
+                "actions": [{
                     "text": "Ohjaa minut ihmiselle",
                     "type": "button",
                     "value": "request_human",
