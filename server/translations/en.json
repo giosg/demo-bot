@@ -20,7 +20,8 @@
     "team_offline_hint": "You can also contact us by email: [support@giosg.com](mailto:support@giosg.com)",
     "visitor_message_response_text": "I apologize, I'm just a simple example bot uncapable of understanding human language! 😅",
     "visitor_message_response_hint": "I only know what to do if you choose one of the options below!",
-    "visitor_message_response_hint_request_human": "Or would you prefer to:",
+    "visitor_message_response_text_request_human": "And there are other options aswell!",
+    "visitor_message_response_hint_request_human": "Maybe you would prefer to:",
     "positive_feedback_response_text": "Good to hear that! 😁 My human fellow will continue chatting with you!",
     "negative_feedback_response_text": "I'm sorry to hear that! 😢 I hope that my human fellow can serve you better!"
 }

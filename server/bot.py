@@ -40,7 +40,7 @@ class ChatBot(object):
         if self.is_allowed_to_join(chat_id):
             self.join_chat(chat_id)
             self.send_option_links(chat_id, 'hello_text', 'hello_hint', translations)
-            self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_hint_request_human', translations)
+            self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_text_request_human', 'visitor_message_response_hint_request_human', translations)
 
     def handle_new_user_chat_message(self, message):
         """
@@ -168,13 +168,14 @@ class ChatBot(object):
             },
         )
 
-    def send_option_link_to_chat_with_human(self, chat_id, hint_key, translations):
+    def send_option_link_to_chat_with_human(self, chat_id, message_key, hint_key, translations):
         """
         Sends a message with a set of buttons that the visitor can click in the chat window.
         """
         self.api.create(
             url='/api/v5/users/{user_id}/chats/{chat_id}/messages'.format(chat_id=chat_id, **self.auth),
             payload={
+                "message": translations[message_key],
                 "attachments": [{
                     "text": translations[hint_key],
                     "actions": [{
@@ -197,19 +198,19 @@ class ChatBot(object):
         )
         if not has_requested_human:
             self.send_option_links(chat_id, 'visitor_message_response_text', 'visitor_message_response_hint', translations)
-            self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_hint_request_human', translations)
+            self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_text_request_human', 'visitor_message_response_hint_request_human', translations)
 
     def react_to_customer_service_agent(self, chat_id, translations):
         self.send_option_links(chat_id, 'customer_service_agent_message', 'customer_service_agent_hint', translations)
-        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_hint_request_human', translations)
+        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_text_request_human', 'visitor_message_response_hint_request_human', translations)
 
     def react_to_manager_user(self, chat_id, translations):
         self.send_option_links(chat_id, 'manager_user_message', 'manager_user_hint', translations)
-        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_hint_request_human', translations)
+        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_text_request_human', 'visitor_message_response_hint_request_human', translations)
 
     def react_to_developer(self, chat_id, translations):
         self.send_option_links(chat_id, 'developer_message', 'developer_hint', translations)
-        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_hint_request_human', translations)
+        self.send_option_link_to_chat_with_human(chat_id, 'visitor_message_response_text_request_human', 'visitor_message_response_hint_request_human', translations)
 
     def react_to_request_human(self, chat_id, invitee_team_name, translations):
         # Find the team by the configured name (case-insensitive) if there is one currently online

@@ -84,8 +84,9 @@ class BotTest(unittest.TestCase):
         })
         self.assertEqual(req6.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.assertEqual(json.loads(req6.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -201,8 +202,9 @@ class BotTest(unittest.TestCase):
         })
         self.assertEqual(req5.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.assertEqual(json.loads(req5.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -291,8 +293,9 @@ class BotTest(unittest.TestCase):
         })
         self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.assertEqual(json.loads(req4.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -359,8 +362,9 @@ class BotTest(unittest.TestCase):
         })
         self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.assertEqual(json.loads(req4.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -427,8 +431,9 @@ class BotTest(unittest.TestCase):
         })
         self.assertEqual(req4.request.url, 'https://service.giosg.com/api/v5/users/user1/chats/chat1/messages')
         self.assertEqual(json.loads(req4.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -690,8 +695,9 @@ class BotTest(unittest.TestCase):
             }],
         })
         self.assertEqual(json.loads(req1.request.body), {
+            "message": "And there are other options aswell!",
             "attachments": [{
-                "text": "Or would you prefer to:",
+                "text": "Maybe you would prefer to:",
                 "actions": [{
                     "text": "Let me chat with a human",
                     "type": "button",
@@ -748,8 +754,9 @@ class BotTest(unittest.TestCase):
             }],
         })
         self.assertEqual(json.loads(req1.request.body), {
+            "message": "Muitakin vaihtoehtoja on!",
             "attachments": [{
-                "text": "Vai haluaisitko että:",
+                "text": "Ehkä haluaisitkin:",
                 "actions": [{
                     "text": "Ohjaa minut ihmiselle",
                     "type": "button",
